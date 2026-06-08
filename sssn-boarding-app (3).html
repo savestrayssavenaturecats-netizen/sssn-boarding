@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save Strays Save Nature — Cat Boarding</title>
+<link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg">
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg">
+<meta name="theme-color" content="#1a2e1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SSSN Boarding">
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;SSSN Boarding&quot;,&quot;short_name&quot;:&quot;SSSN&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/jpeg&quot;},{&quot;src&quot;:&quot;https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg&quot;,&quot;sizes&quot;:&quot;512x512&quot;,&quot;type&quot;:&quot;image/jpeg&quot;}],&quot;start_url&quot;:&quot;/&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#1a2e1a&quot;,&quot;theme_color&quot;:&quot;#1a2e1a&quot;}">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--forest:#1a2e1a;--moss:#2d4a2d;--sage:#4a7c59;--mint:#7eb89a;--cream:#f8f4ed;--warm:#f0e8d8;--amber:#c8873a;--gold:#e6b84a;--muted:#7a8a7a;--border:#d4e0d4;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--forest);min-height:100vh;overflow-x:hidden;}
+#loadingScreen{position:fixed;inset:0;background:var(--forest);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
+#loadingScreen p{color:var(--mint);font-size:13px;margin-top:16px;letter-spacing:1px;}
+.spinner{width:40px;height:40px;border:3px solid rgba(126,184,154,.3);border-top-color:var(--mint);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#loginScreen{min-height:100vh;background:var(--forest);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;position:relative;overflow:hidden;}
+#loginScreen::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(74,124,89,.3) 0%,transparent 70%);}
+.logo-area{text-align:center;margin-bottom:40px;position:relative;z-index:1;}
+.logo-paw{font-size:52px;display:block;margin-bottom:12px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.logo-area h1{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--cream);line-height:1.2;font-weight:700;}
+.logo-area p{font-size:11px;color:var(--mint);letter-spacing:2.5px;text-transform:uppercase;margin-top:6px;}
+.persona-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:360px;position:relative;z-index:1;}
+.persona-btn{background:rgba(255,255,255,.05);border:1px solid rgba(126,184,154,.3);border-radius:16px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .25s;}
+.persona-btn:active{transform:scale(.97);background:rgba(126,184,154,.15);}
+.persona-icon{font-size:30px;display:block;margin-bottom:8px;}
+.persona-name{font-size:13px;font-weight:600;color:var(--cream);display:block;}
+.persona-role{font-size:10px;color:var(--mint);margin-top:3px;}
+.live-dot{width:8px;height:8px;background:#4caf50;border-radius:50%;display:inline-block;margin-right:6px;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.live-badge{display:flex;align-items:center;justify-content:center;color:var(--mint);font-size:11px;margin-top:20px;position:relative;z-index:1;}
+/* PIN */
+#pinScreen{min-height:100vh;background:var(--forest);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;}
+.pin-card{background:rgba(255,255,255,.07);border:1px solid rgba(126,184,154,.25);border-radius:24px;padding:30px 24px;width:100%;max-width:320px;text-align:center;}
+.pin-role-icon{font-size:40px;margin-bottom:8px;}
+.pin-role-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--cream);margin-bottom:4px;}
+.pin-subtitle{font-size:11px;color:var(--mint);letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:16px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(126,184,154,.5);transition:all .2s;}
+.pin-dot.filled{background:var(--mint);border-color:var(--mint);}
+.pin-dot.error{background:#e57373;border-color:#e57373;}
+.pin-error{color:#e57373;font-size:12px;margin-bottom:12px;min-height:18px;}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.pin-btn{background:rgba(255,255,255,.1);border:1px solid rgba(126,184,154,.2);border-radius:14px;padding:16px;font-size:20px;font-weight:600;color:var(--cream);cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s;}
+.pin-btn:active{background:rgba(126,184,154,.3);transform:scale(.95);}
+.pin-btn.zero{grid-column:2;}
+.pin-btn.del{background:transparent;border:none;color:var(--mint);font-size:18px;}
+.pin-back{background:transparent;border:none;color:var(--mint);font-size:13px;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:4px;font-weight:500;}
+/* PHONE INPUT */
+#phoneScreen{min-height:100vh;background:var(--forest);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;}
+.phone-card{background:rgba(255,255,255,.07);border:1px solid rgba(126,184,154,.25);border-radius:24px;padding:30px 24px;width:100%;max-width:320px;text-align:center;}
+.phone-card h2{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream);margin-bottom:6px;}
+.phone-card p{font-size:12px;color:var(--mint);margin-bottom:24px;}
+.phone-input{width:100%;background:rgba(255,255,255,.1);border:1.5px solid rgba(126,184,154,.3);border-radius:12px;padding:14px;font-size:18px;color:var(--cream);font-family:'Outfit',sans-serif;text-align:center;letter-spacing:2px;margin-bottom:14px;}
+.phone-input::placeholder{color:rgba(126,184,154,.5);letter-spacing:1px;}
+.phone-input:focus{outline:none;border-color:var(--mint);}
+.phone-submit{width:100%;background:var(--sage);border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:600;color:white;cursor:pointer;font-family:'Outfit',sans-serif;}
+.phone-error{color:#e57373;font-size:12px;margin-bottom:10px;min-height:16px;}
+/* APP */
+#appShell{display:none;min-height:100vh;flex-direction:column;}
+.app-header{background:var(--forest);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.app-header-left{display:flex;align-items:center;gap:10px;}
+.app-header-left span{font-size:22px;}
+.app-header h2{font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:17px;font-weight:700;}
+.app-header p{font-size:10px;color:var(--mint);letter-spacing:1px;text-transform:uppercase;}
+.logout-btn{background:rgba(255,255,255,.1);border:none;color:var(--mint);padding:7px 12px;border-radius:8px;font-size:12px;font-family:'Outfit',sans-serif;cursor:pointer;}
+.nav-tabs{background:var(--moss);display:flex;overflow-x:auto;border-bottom:1px solid rgba(126,184,154,.2);}
+.nav-tab{padding:12px 16px;font-size:12px;font-weight:600;color:rgba(248,244,237,.5);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.nav-tab .nav-icon{font-size:16px;}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.app-content{flex:1;padding:16px;overflow-y:auto;}
+.card{background:white;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 4px rgba(26,46,26,.06);}
+.card-head{background:var(--forest);padding:13px 16px;display:flex;justify-content:space-between;align-items:center;}
+.card-head h3{font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:16px;font-weight:700;}
+.card-head .ch-right{font-size:11px;color:var(--mint);}
+.card-body{padding:14px 16px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.stat-box{background:white;border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--sage);line-height:1;}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500;}
+.list-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.list-item:last-child{border-bottom:none;}
+.li-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--warm);}
+.li-title{font-size:13px;font-weight:600;color:var(--forest);}
+.li-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.badge-green{background:#e8f5e9;color:#2e7d32;}
+.badge-amber{background:#fff8e1;color:#e65100;}
+.badge-red{background:#fdecea;color:#c62828;}
+.badge-blue{background:#e3f2fd;color:#1565c0;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-family:'Outfit',sans-serif;font-size:13px;color:var(--forest);background:var(--cream);}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--sage);background:white;}
+.field textarea{min-height:80px;resize:vertical;}
+.btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--forest);color:var(--cream);}
+.btn-accent{background:var(--amber);color:white;}
+.btn-sage{background:var(--sage);color:white;}
+.btn-red{background:#c62828;color:white;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--forest);}
+.btn-sm{display:inline-block;width:auto;padding:7px 14px;font-size:12px;border-radius:8px;}
+.btn-dl{background:var(--moss);color:var(--cream);display:flex;align-items:center;justify-content:center;gap:8px;}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.sec-head h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;}
+.sec-head p{font-size:11px;color:var(--muted);}
+.upload-box{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:var(--warm);}
+.upload-box:hover{border-color:var(--sage);}
+.upload-box .ub-icon{font-size:28px;margin-bottom:8px;}
+.upload-box p{font-size:12px;color:var(--muted);}
+.upload-box strong{color:var(--sage);}
+.timeline{position:relative;padding-left:20px;}
+.timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:var(--border);}
+.tl-item{position:relative;margin-bottom:16px;}
+.tl-dot{position:absolute;left:-16px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--sage);border:2px solid white;box-shadow:0 0 0 2px var(--sage);}
+.tl-time{font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:600;}
+.tl-content{font-size:13px;color:var(--forest);line-height:1.5;}
+.tl-tag{display:inline-block;font-size:10px;color:var(--sage);font-weight:600;background:#eef6f0;padding:2px 7px;border-radius:10px;margin-top:4px;}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+.pay-row:last-child{border-bottom:none;}
+.pay-row .pr-left .pr-title{font-size:13px;font-weight:600;}
+.pay-row .pr-left .pr-sub{font-size:11px;color:var(--muted);}
+.pay-row .pr-amt{font-size:15px;font-weight:700;color:var(--amber);}
+.cat-card{background:white;border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;gap:12px;}
+.cat-avatar{width:50px;height:50px;border-radius:12px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.cat-name{font-size:15px;font-weight:700;}
+.cat-info{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6;}
+.cat-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0;}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:8px;cursor:pointer;font-weight:500;}
+.cal-day.header{font-size:10px;color:var(--muted);font-weight:600;cursor:default;}
+.cal-day.empty{cursor:default;}
+.cal-day.available{background:var(--warm);color:var(--forest);}
+.cal-day.available:hover{background:var(--sage);color:white;}
+.cal-day.booked{background:#fdecea;color:#c62828;cursor:not-allowed;}
+.cal-day.today{border:2px solid var(--sage);}
+.progress-wrap{background:var(--warm);border-radius:6px;height:6px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--sage);border-radius:6px;transition:width .4s;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:white;border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin-bottom:16px;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--forest);color:var(--cream);padding:10px 20px;border-radius:30px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.reminder-banner{background:#fff8e1;border:1.5px solid #f9a825;border-radius:14px;padding:14px 16px;margin-bottom:14px;}
+.reminder-banner .rb-title{font-size:12px;font-weight:700;color:#e65100;margin-bottom:6px;}
+.bill-total{background:var(--forest);border-radius:16px;padding:18px 20px;margin-top:4px;}
+.bill-total-amt{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:var(--gold);}
+.syncing{display:inline-block;width:6px;height:6px;background:var(--gold);border-radius:50%;margin-left:6px;animation:blink 1s infinite;}
+/* QR BOX */
+.qr-box{background:linear-gradient(135deg,#1a2e1a,#2d4a2d);border-radius:16px;padding:20px;text-align:center;margin-top:12px;}
+.qr-box .qr-title{color:var(--gold);font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+.qr-upi{background:rgba(255,255,255,.1);border-radius:12px;padding:12px 16px;margin-bottom:12px;}
+.qr-upi p{color:var(--mint);font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.qr-upi span{color:var(--cream);font-size:14px;font-weight:600;letter-spacing:.5px;}
+.qr-copy{background:var(--sage);border:none;border-radius:8px;padding:8px 16px;color:white;font-size:12px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:8px;}
+.qr-note{color:rgba(248,244,237,.6);font-size:11px;margin-top:10px;line-height:1.6;}
+/* BOOKING CARD */
+.booking-card{background:white;border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+.booking-card .bc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.booking-card .bc-name{font-size:14px;font-weight:700;color:var(--forest);}
+.booking-card .bc-info{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6;}
+.booking-actions{display:flex;gap:8px;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen"><div class="spinner"></div><p>Connecting to database...</p></div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="logo-area">
+    <img src="https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg" style="width:90px;height:90px;object-fit:contain;border-radius:16px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;animation:float 3s ease-in-out infinite;">
+    <h1>Save Strays<br>Save Nature</h1>
+    <p>Cat Boarding &amp; Care</p>
+  </div>
+  <div class="persona-grid">
+    <div class="persona-btn" onclick="askPin('owner')"><span class="persona-icon">👑</span><span class="persona-name">Owner</span><span class="persona-role">Full Access</span></div>
+    <div class="persona-btn" onclick="askPin('coordinator')"><span class="persona-icon">📋</span><span class="persona-name">Coordinator</span><span class="persona-role">Health &amp; Schedules</span></div>
+    <div class="persona-btn" onclick="askPin('caretaker')"><span class="persona-icon">🧹</span><span class="persona-name">Caretaker</span><span class="persona-role">Daily Tasks</span></div>
+    <div class="persona-btn" onclick="show('phoneScreen')"><span class="persona-icon">🏠</span><span class="persona-name">Existing Customer</span><span class="persona-role">My Cats &amp; Bill</span></div>
+  </div>
+  <div style="width:100%;max-width:360px;margin-top:12px;position:relative;z-index:1;">
+    <div class="persona-btn" style="width:100%;background:rgba(200,135,58,.15);border-color:rgba(200,135,58,.4)" onclick="showGuestBooking()">
+      <span class="persona-icon">🐾</span>
+      <span class="persona-name" style="color:var(--gold)">New Customer?</span>
+      <span class="persona-role">Book a Slot for your Cat</span>
+    </div>
+  </div>
+  <div class="live-badge"><span class="live-dot"></span>Live — All devices synced</div>
+</div>
+
+<!-- PIN -->
+<div id="pinScreen">
+  <div class="pin-card">
+    <div class="pin-role-icon" id="pinIcon">👑</div>
+    <div class="pin-role-name" id="pinRoleName">Owner</div>
+    <div class="pin-subtitle">Enter PIN to continue</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn zero" onclick="pinPress('0')">0</button>
+      <button class="pin-btn del" onclick="pinDelete()">⌫</button>
+    </div>
+    <button class="pin-back" onclick="backToLogin()">← Back</button>
+  </div>
+</div>
+
+<!-- PHONE LOGIN (Customer) -->
+<div id="phoneScreen">
+  <div class="phone-card">
+    <div style="font-size:40px;margin-bottom:8px">🏠</div>
+    <h2>Customer</h2>
+    <p style="margin-bottom:18px">Existing ya New customer?</p>
+
+    <!-- Existing Customer -->
+    <div style="background:rgba(255,255,255,.06);border:1px solid rgba(126,184,154,.25);border-radius:14px;padding:16px;margin-bottom:12px">
+      <p style="color:var(--mint);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🐱 Existing Customer</p>
+      <p style="color:rgba(255,255,255,.5);font-size:11px;margin-bottom:12px">Apna registered phone number daalo</p>
+      <input class="phone-input" type="tel" id="phoneInput" maxlength="10" placeholder="10-digit number">
+      <div class="phone-error" id="phoneError"></div>
+      <button class="phone-submit" onclick="submitPhone()">View My Cats →</button>
+    </div>
+
+    <!-- New Customer -->
+    <div style="background:rgba(200,135,58,.08);border:1px solid rgba(200,135,58,.3);border-radius:14px;padding:16px;margin-bottom:14px">
+      <p style="color:var(--gold);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">🐾 New Customer</p>
+      <p style="color:rgba(255,255,255,.5);font-size:11px;margin-bottom:12px">Pehli baar? Booking request bhejo</p>
+      <button class="phone-submit" style="background:rgba(200,135,58,.7)" onclick="showGuestBooking()">Book a Slot →</button>
+    </div>
+
+    <button class="pin-back" style="margin-top:4px;display:block" onclick="backToLogin()">← Back</button>
+  </div>
+</div>
+
+
+<!-- GUEST BOOKING SCREEN -->
+<div id="guestBookingScreen" style="min-height:100vh;background:var(--forest);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;overflow-y:auto;">
+  <div style="width:100%;max-width:360px;">
+    <div style="text-align:center;margin-bottom:24px">
+      <span style="font-size:40px">🐾</span>
+      <h2 style="font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:24px;margin-top:8px">Book a Slot</h2>
+      <p style="font-size:12px;color:var(--mint);margin-top:4px">We will call/WhatsApp you to confirm</p>
+    </div>
+    <div style="background:rgba(255,255,255,.07);border:1px solid rgba(126,184,154,.25);border-radius:20px;padding:20px;">
+      <div class="field"><label style="color:var(--mint)">Your Name</label><input type="text" id="gbName" placeholder="Full name" style="background:rgba(255,255,255,.1);border-color:rgba(126,184,154,.3);color:var(--cream)"></div>
+      <div class="field"><label style="color:var(--mint)">Your Phone</label><input type="tel" id="gbPhone" maxlength="10" placeholder="10-digit number" style="background:rgba(255,255,255,.1);border-color:rgba(126,184,154,.3);color:var(--cream)"></div>
+      <div class="field"><label style="color:var(--mint)">Cat Name</label><input type="text" id="gbCat" placeholder="Cat's name" style="background:rgba(255,255,255,.1);border-color:rgba(126,184,154,.3);color:var(--cream)"></div>
+      <div class="field"><label style="color:var(--mint)">Cat Age &amp; Breed</label><input type="text" id="gbBreed" placeholder="e.g. 2 years, Indie" style="background:rgba(255,255,255,.1);border-color:rgba(126,184,154,.3);color:var(--cream)"></div>
+      <div class="field"><label style="color:var(--mint)">Dates Needed</label><input type="text" id="gbDates" placeholder="e.g. 15 Jun to 20 Jun" style="background:rgba(255,255,255,.1);border-color:rgba(126,184,154,.3);color:var(--cream)"></div>
+      <div class="field"><label style="color:var(--mint)">Boarding Plan</label>
+        <select id="gbPlan" style="background:rgba(255,255,255,.1);border-color:rgba(126,184,154,.3);color:var(--cream)">
+          <option>Without Food — ₹250/day</option>
+          <option>With Food — ₹350/day</option>
+        </select>
+      </div>
+      <div class="field"><label style="color:var(--mint)">Notes (optional)</label><textarea id="gbNotes" placeholder="Medical conditions, special needs..." style="background:rgba(255,255,255,.1);border-color:rgba(126,184,154,.3);color:var(--cream);min-height:70px"></textarea></div>
+      <div id="gbError" style="color:#e57373;font-size:12px;margin-bottom:10px;min-height:16px"></div>
+      <button class="btn btn-accent" id="gbBtn" onclick="submitGuestBooking()">Send Booking Request 🐾</button>
+    </div>
+    <button class="pin-back" style="margin-top:16px;display:block;text-align:center;color:var(--mint)" onclick="backToLogin()">← Back to Login</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appShell">
+  <div class="app-header">
+    <div class="app-header-left">
+      <img src="https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg" style="width:32px;height:32px;border-radius:6px;object-fit:contain;flex-shrink:0">
+      <div><h2>SSSN Boarding</h2><p id="roleLabel">—</p></div>
+    </div>
+    <button class="logout-btn" onclick="logout()">← Exit</button>
+  </div>
+  <div class="nav-tabs" id="navTabs"></div>
+  <div class="app-content" id="appContent"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box"><div class="modal-handle"></div><div id="modalContent"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const PINS = {owner:'2013',coordinator:'1234',caretaker:'5678',customer:'1111'};
+const PIN_META = {owner:{icon:'👑',name:'Owner'},coordinator:{icon:'📋',name:'Coordinator'},caretaker:{icon:'🧹',name:'Caretaker'},customer:{icon:'🏠',name:'Customer'}};
+const RATES = {'Without Food':250,'With Food':350};
+const LITTER_RATE = 60; // Rs per kg
+const UPI_ID = 'minalbahadoffice-2@okhdfcbank';
+const OWNER_NAME = 'Minal Bahad';
+const CLOUDINARY_CLOUD = 'ddbq7gfmi';
+const CLOUDINARY_PRESET = 'sssn_uploads';
+
+firebase.initializeApp({
+  apiKey:"AIzaSyCBUT01_h6iaG5Sp090kG0ZYueHISnMVHU",
+  authDomain:"sssn-boarding.firebaseapp.com",
+  projectId:"sssn-boarding",
+  storageBucket:"sssn-boarding.firebasestorage.app",
+  messagingSenderId:"990546071924",
+  appId:"1:990546071924:web:8c1f066e4ac09b792c5c21"
+});
+const db = firebase.firestore();
+
+// ============================================================
+// STATE
+// ============================================================
+let CACHE = {cats:[],healthLogs:[],fares:[],litters:[],tasks:{},bookingRequests:[],inspectionReports:[]};
+let currentRole=null, currentView=null, currentCustomerPhone=null;
+let pinRole=null, pinEntry='';
+let unsubs=[];
+
+// ============================================================
+// PIN
+// ============================================================
+function askPin(role){
+  pinRole=role; pinEntry='';
+  show('pinScreen');
+  document.getElementById('pinIcon').textContent=PIN_META[role].icon;
+  document.getElementById('pinRoleName').textContent=PIN_META[role].name;
+  document.getElementById('pinError').textContent='';
+  updateDots();
+}
+function pinPress(d){
+  if(pinEntry.length>=4) return;
+  pinEntry+=d; updateDots();
+  if(pinEntry.length===4) setTimeout(checkPin,150);
+}
+function pinDelete(){pinEntry=pinEntry.slice(0,-1);document.getElementById('pinError').textContent='';updateDots();}
+function updateDots(){
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById('d'+i);
+    dot.classList.toggle('filled',i<pinEntry.length);
+    dot.classList.remove('error');
+  }
+}
+function checkPin(){
+  if(pinEntry===PINS[pinRole]){
+    if(pinRole==='customer'){show('phoneScreen');}
+    else{show('appShell');loginRole(pinRole);}
+  } else {
+    for(let i=0;i<4;i++) document.getElementById('d'+i).classList.add('error');
+    document.getElementById('pinError').textContent='Wrong PIN. Try again.';
+    setTimeout(()=>{pinEntry='';updateDots();document.getElementById('pinError').textContent='';},1000);
+  }
+}
+function backToLogin(){pinRole=null;pinEntry='';show('loginScreen');}
+
+function showGuestBooking(){
+  show('guestBookingScreen');
+}
+
+async function submitGuestBooking(){
+  const name=document.getElementById('gbName').value.trim();
+  const phone=document.getElementById('gbPhone').value.trim();
+  const cat=document.getElementById('gbCat').value.trim();
+  const dates=document.getElementById('gbDates').value.trim();
+  const plan=document.getElementById('gbPlan').value;
+  const breed=document.getElementById('gbBreed').value.trim();
+  const notes=document.getElementById('gbNotes').value.trim();
+  const err=document.getElementById('gbError');
+  const btn=document.getElementById('gbBtn');
+
+  if(!name||!phone||!cat){err.textContent='Please fill Name, Phone and Cat Name';return;}
+  if(phone.length!==10||isNaN(phone)){err.textContent='Enter valid 10-digit phone number';return;}
+
+  btn.textContent='Sending...';btn.disabled=true;
+  try{
+    await db.collection('bookingRequests').add({
+      customerName:name,phone,catName:cat,breed,dates,plan,notes,
+      status:'pending',source:'new_customer',ts:Date.now()
+    });
+    // Show success
+    document.querySelector('#guestBookingScreen > div').innerHTML=`
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:60px;margin-bottom:16px">🐾</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;color:var(--cream);font-size:26px;margin-bottom:12px">Request Sent!</h2>
+        <p style="color:var(--mint);font-size:14px;line-height:1.8">Thank you <strong style="color:var(--gold)">${name}</strong>!<br>We will call/WhatsApp you on<br><strong style="color:var(--gold)">${phone}</strong><br>to confirm your booking.</p>
+        <div style="margin-top:30px;background:rgba(255,255,255,.07);border-radius:14px;padding:16px">
+          <p style="color:var(--mint);font-size:12px">🐱 <strong style="color:var(--cream)">${cat}</strong> · ${plan}</p>
+          ${dates?`<p style="color:var(--mint);font-size:12px;margin-top:4px">📅 ${dates}</p>`:''}
+        </div>
+        <button class="btn btn-outline" style="margin-top:24px;color:var(--mint);border-color:rgba(126,184,154,.3)" onclick="backToLogin()">← Back to Home</button>
+      </div>`;
+  }catch(e){
+    err.textContent='Error sending request. Please try again.';
+    btn.textContent='Send Booking Request 🐾';btn.disabled=false;
+  }
+}
+
+// ============================================================
+// CUSTOMER PHONE LOGIN
+// ============================================================
+async function submitPhone(){
+  const phone=document.getElementById('phoneInput').value.trim();
+  if(phone.length!==10||isNaN(phone)){document.getElementById('phoneError').textContent='Enter valid 10-digit number';return;}
+  
+  const btn=document.querySelector('.phone-submit');
+  btn.textContent='Checking...';btn.disabled=true;
+  
+  try{
+    // First check cache (if already loaded)
+    let found=CACHE.cats.find(c=>c.phone===phone);
+    
+    // If not in cache, query Firebase directly
+    if(!found){
+      const snap=await db.collection('cats').where('phone','==',phone).limit(1).get();
+      if(!snap.empty){
+        found=snap.docs[0].data();
+      }
+    }
+    
+    if(!found){
+      document.getElementById('phoneError').textContent='No cats found for this number. Contact SSSN.';
+      btn.textContent='View My Cats →';btn.disabled=false;
+      return;
+    }
+    
+    currentCustomerPhone=phone;
+    document.getElementById('phoneError').textContent='';
+    document.getElementById('phoneInput').value='';
+    show('appShell');
+    loginRole('customer');
+  }catch(e){
+    document.getElementById('phoneError').textContent='Connection error. Try again.';
+    btn.textContent='View My Cats →';btn.disabled=false;
+  }
+}
+
+// ============================================================
+// SHOW / LOGIN
+// ============================================================
+function show(id){
+  ['loadingScreen','loginScreen','pinScreen','phoneScreen','guestBookingScreen','appShell'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.style.display=s===id?(s==='appShell'?'flex':'flex'):'none';
+  });
+}
+
+const PERSONAS={
+  owner:{label:'OWNER',tabs:[{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'cats',icon:'🐱',label:'Cats'},{id:'billing',icon:'💰',label:'Billing'},{id:'bookings',icon:'📅',label:'Bookings'},{id:'fares',icon:'🚕',label:'Fares'},{id:'logs',icon:'📋',label:'Logs'}]},
+  coordinator:{label:'COORDINATOR',tabs:[{id:'schedule',icon:'📅',label:'Schedule'},{id:'health',icon:'❤️',label:'Health'},{id:'tasks',icon:'✅',label:'Tasks'},{id:'uploads',icon:'📸',label:'Uploads'}]},
+  caretaker:{label:'CARETAKER',tabs:[{id:'litter',icon:'🪣',label:'Litter'},{id:'fare_log',icon:'🚕',label:'Fare Log'}]},
+  customer:{label:'CUSTOMER',tabs:[{id:'my_bill',icon:'💳',label:'My Bill'},{id:'my_cats',icon:'🐱',label:'My Cats'},{id:'book',icon:'📅',label:'Book'}]}
+};
+
+function loginRole(role){
+  currentRole=role;
+  document.getElementById('roleLabel').textContent=PERSONAS[role].label+(role==='customer'?' · '+currentCustomerPhone:'');
+  const tabs=PERSONAS[role].tabs;
+  document.getElementById('navTabs').innerHTML=tabs.map((t,i)=>`<div class="nav-tab ${i===0?'active':''}" onclick="switchView('${t.id}',this)"><span class="nav-icon">${t.icon}</span>${t.label}</div>`).join('');
+  renderView(tabs[0].id);
+}
+
+function logout(){currentRole=null;currentCustomerPhone=null;pinRole=null;pinEntry='';show('loginScreen');}
+function switchView(id,el){document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderView(id);}
+function renderView(id){
+  currentView=id;
+  const map={dashboard:renderDashboard,cats:renderCats,billing:renderBilling,bookings:renderBookings,fares:renderFaresOwner,logs:renderLogs,schedule:renderSchedule,health:renderHealth,tasks:renderTasks,uploads:renderUploads,litter:renderLitter,fare_log:renderFareLog,my_bill:renderMyBill,my_cats:renderMyCats,book:renderBook};
+  document.getElementById('appContent').innerHTML=(map[id]?map[id]():'<p style="padding:40px;text-align:center;color:var(--muted)">Coming soon</p>');
+}
+function getTodayKey(){return new Date().toISOString().split('T')[0];}
+function nowTime(){return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
+function fmtDate(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';}
+
+// ============================================================
+// BILLING ENGINE
+// ============================================================
+function calcBill(catName){
+  const cat=CACHE.cats.find(c=>c.name===catName); if(!cat) return null;
+  const today=new Date();today.setHours(0,0,0,0);
+  const admitted=new Date(cat.admitted);admitted.setHours(0,0,0,0);
+  const days=Math.max(1,Math.floor((today-admitted)/86400000));
+  const ratePerDay=RATES[cat.foodPlan]||250;
+  const boarding=days*ratePerDay;
+  const fareTotal=CACHE.fares.filter(f=>f.catName===catName).reduce((a,b)=>a+Number(b.amt),0);
+  const litterTotal=CACHE.litters.filter(l=>l.catName===catName).reduce((a,b)=>a+Number(b.amt),0);
+  const total=boarding+fareTotal+litterTotal;
+  const lastRem=new Date(cat.lastReminder||cat.admitted);lastRem.setHours(0,0,0,0);
+  const daysSince=Math.floor((today-lastRem)/86400000);
+  return{days,ratePerDay,boarding,fareTotal,litterTotal,total,reminderDue:daysSince>=7,foodPlan:cat.foodPlan};
+}
+
+// ============================================================
+// FIREBASE LISTENERS
+// ============================================================
+async function initDB(){
+  try{
+    const snap=await db.collection('cats').limit(1).get();
+    if(snap.empty){
+      const batch=db.batch();
+      const today=getTodayKey();
+      [{name:'Luna',breed:'Indie',age:'2y',owner:'Priya Sharma',phone:'9876543210',status:'boarding',admitted:'2025-05-29',discharge:'2025-06-12',slot:'A1',health:'stable',meds:'Deworming done',foodPlan:'With Food',lastReminder:'2025-05-29'},
+       {name:'Mochi',breed:'Persian',age:'4y',owner:'Rahul Verma',phone:'9123456780',status:'boarding',admitted:'2025-06-01',discharge:'2025-06-10',slot:'B2',health:'recovering',meds:'Amoxicillin 2x',foodPlan:'Without Food',lastReminder:'2025-06-01'},
+       {name:'Tiger',breed:'Indie',age:'1y',owner:'Sneha Patil',phone:'9988776655',status:'rehab',admitted:'2025-05-25',discharge:'2025-06-15',slot:'C1',health:'stable',meds:'None',foodPlan:'With Food',lastReminder:'2025-05-25'}
+      ].forEach(c=>{const r=db.collection('cats').doc();batch.set(r,c);});
+      await batch.commit();
+    }
+  }catch(e){console.error(e);}
+}
+
+function startListeners(){
+  unsubs.forEach(u=>u()); unsubs=[];
+  unsubs.push(db.collection('cats').onSnapshot(s=>{CACHE.cats=s.docs.map(d=>({id:d.id,...d.data()}));if(currentView)renderView(currentView);}));
+  unsubs.push(db.collection('healthLogs').orderBy('ts','desc').limit(50).onSnapshot(s=>{CACHE.healthLogs=s.docs.map(d=>({id:d.id,...d.data()}));if(currentView)renderView(currentView);}));
+  unsubs.push(db.collection('fares').orderBy('ts','desc').onSnapshot(s=>{CACHE.fares=s.docs.map(d=>({id:d.id,...d.data()}));if(currentView)renderView(currentView);}));
+  unsubs.push(db.collection('litters').orderBy('ts','desc').onSnapshot(s=>{CACHE.litters=s.docs.map(d=>({id:d.id,...d.data()}));if(currentView)renderView(currentView);}));
+  unsubs.push(db.collection('bookingRequests').orderBy('ts','desc').onSnapshot(s=>{CACHE.bookingRequests=s.docs.map(d=>({id:d.id,...d.data()}));if(currentView)renderView(currentView);}));
+  unsubs.push(db.collection('tasks').doc(getTodayKey()).onSnapshot(s=>{CACHE.tasks=s.exists?s.data():{};if(currentView==='tasks')renderView('tasks');}));
+  unsubs.push(db.collection('inspectionReports').orderBy('ts','desc').limit(30).onSnapshot(s=>{CACHE.inspectionReports=s.docs.map(d=>({id:d.id,...d.data()}));if(currentView==='dashboard'||currentView==='logs')renderView(currentView);}));
+  // Auto-clean rejected bookings older than 48 hours
+  setTimeout(autoCleanRejectedBookings, 3000);
+}
+
+// ============================================================
+// OWNER VIEWS
+// ============================================================
+function renderDashboard(){
+  const boarding=CACHE.cats.filter(c=>c.status==='boarding').length;
+  const rehab=CACHE.cats.filter(c=>c.status==='rehab').length;
+  const totalBill=CACHE.cats.reduce((a,c)=>a+(calcBill(c.name)?.total||0),0);
+  const remDue=CACHE.cats.filter(c=>calcBill(c.name)?.reminderDue).length;
+  const pendingBookings=CACHE.bookingRequests.filter(b=>b.status==='pending').length;
+  return `
+  <div class="sec-head"><h3>Overview <span class="syncing"></span></h3><p>${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</p></div>
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-val">${boarding}</div><div class="stat-lbl">Boarding</div></div>
+    <div class="stat-box"><div class="stat-val">${rehab}</div><div class="stat-lbl">Rehab</div></div>
+    <div class="stat-box"><div class="stat-val">₹${totalBill}</div><div class="stat-lbl">Outstanding</div></div>
+    <div class="stat-box"><div class="stat-val">${pendingBookings}</div><div class="stat-lbl">New Bookings</div></div>
+  </div>
+  ${remDue>0?`<div class="reminder-banner"><div class="rb-title">🔔 ${remDue} Payment Reminder(s) Due</div>${CACHE.cats.filter(c=>calcBill(c.name)?.reminderDue).map(c=>`<p>• ${c.name} — ${c.owner} — 📞 ${c.phone} — ₹${calcBill(c.name).total}</p>`).join('')}</div>`:''}
+  ${(()=>{const healthAlerts=[];CACHE.cats.forEach(c=>{if(c.dewormNext){const d=daysUntil(c.dewormNext);if(d<=7)healthAlerts.push(`🪱 ${c.name}: Deworming ${d<0?`overdue ${Math.abs(d)}d`:d===0?'TODAY':`in ${d}d`}`);}if(c.vaccNext){const d=daysUntil(c.vaccNext);if(d<=7)healthAlerts.push(`💉 ${c.name}: ${c.vaccName||'Vaccination'} ${d<0?`overdue ${Math.abs(d)}d`:d===0?'TODAY':`in ${d}d`}`);}});return healthAlerts.length>0?`<div class="reminder-banner" style="border-color:#a5d6a7;background:#f1f8e9"><div class="rb-title" style="color:#2e7d32">🏥 Health Schedule Reminders</div>${healthAlerts.map(a=>`<p style="font-size:12px;margin-top:3px">• ${a}</p>`).join('')}</div>`:'';})()}
+  <div class="card"><div class="card-head"><h3>Active Cats</h3><span class="ch-right">${CACHE.cats.length} total</span></div>
+  <div class="card-body">${CACHE.cats.map(c=>{const b=calcBill(c.name);return`<div class="list-item">
+    <div class="li-icon">🐱</div><div style="flex:1"><div class="li-title">${c.name} <span class="badge ${c.status==='boarding'?'badge-green':'badge-amber'}">${c.status}</span></div>
+    <div class="li-sub">Slot ${c.slot} · ${c.owner} · 📞${c.phone}</div></div>
+    <div style="text-align:right"><div style="font-weight:700;color:var(--amber);font-size:13px">₹${b?b.total:0}</div>
+    ${b&&b.reminderDue?'<span class="badge badge-amber">Remind</span>':''}</div></div>`;}).join('')}</div></div>
+  <div class="card"><div class="card-head"><h3>Recent Activity</h3></div>
+  <div class="card-body"><div class="timeline">${CACHE.healthLogs.slice(0,5).map(l=>`<div class="tl-item"><div class="tl-dot"></div>
+    <div class="tl-time">${l.date} · ${l.time} · ${l.catName||'?'}</div>
+    <div class="tl-content">${l.note}</div><span class="tl-tag">${l.type} · ${l.by}</span></div>`).join('')}</div></div></div>
+  <div class="card"><div class="card-head"><h3>📋 Inspection Reports</h3><span class="ch-right">${(CACHE.inspectionReports||[]).length} reports</span></div>
+  <div class="card-body">
+    ${(CACHE.inspectionReports||[]).length===0?
+      '<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">No reports yet — Coordinator will send reports from Tasks tab</p>':
+      (CACHE.inspectionReports||[]).slice(0,10).map(r=>
+        '<div style="padding:12px 0;border-bottom:1px solid var(--border)">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+        '<span style="font-size:13px;font-weight:600">'+r.condition+'</span>'+
+        '<span style="font-size:10px;color:var(--muted)">'+r.date+' · '+r.time+'</span></div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">🧹 '+r.cleanliness+'</div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">✅ Tasks: '+r.tasksDone+'/'+r.tasksTotal+' ('+r.tasksPct+'%)</div>'+
+        (r.note?'<div style="font-size:12px;color:var(--forest);background:var(--warm);padding:8px;border-radius:8px;margin-top:6px">'+r.note+'</div>':'')+
+        '</div>'
+      ).join('')
+    }
+  </div></div>`;
+
+}
+
+function renderCats(){
+  let html=`<div class="sec-head"><h3>All Cats</h3><button class="btn btn-sm btn-primary" onclick="openAddCat()">+ Admit</button></div>`;
+  CACHE.cats.forEach(c=>{
+    html+=`<div class="cat-card">
+      <div class="cat-avatar">🐱</div>
+      <div style="flex:1"><div class="cat-name">${c.name}</div>
+      <div class="cat-info">${c.breed} · ${c.age} · Slot ${c.slot} · ${c.foodPlan}<br>${c.owner} · 📞 ${c.phone}<br>In: ${c.admitted} · Out: ${c.discharge}</div>
+      <div class="cat-badges"><span class="badge ${c.status==='boarding'?'badge-green':'badge-amber'}">${c.status}</span>
+      <span class="badge ${c.health==='stable'?'badge-green':'badge-red'}">${c.health}</span>
+      ${c.meds&&c.meds!=='None'?'<span class="badge badge-blue">On meds</span>':''}</div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-sm btn-outline" onclick="openEditCat('${c.id}')">✏️ Edit</button>
+        <button class="btn btn-sm btn-sage" onclick="downloadCaseStudy('${c.id}')">⬇ Case</button>
+        <button class="btn btn-sm btn-red" onclick="deleteCat('${c.id}','${c.name}')">🗑</button>
+      </div></div></div>
+    <div class="card"><div class="card-head"><h3>📋 ${c.name} — Logs</h3><span class="ch-right" style="font-size:11px">${CACHE.healthLogs.filter(l=>l.catName===c.name).length} entries</span></div>
+    <div class="card-body"><div class="timeline" style="max-height:180px;overflow-y:auto">
+      ${CACHE.healthLogs.filter(l=>l.catName===c.name).slice(0,5).map(l=>`<div class="tl-item"><div class="tl-dot"></div>
+        <div class="tl-time">${l.date} · ${l.time}</div>
+        <div class="tl-content">${l.note}</div><span class="tl-tag">${l.type}</span></div>`).join('')||'<p style="color:var(--muted);font-size:12px;text-align:center">No logs yet</p>'}
+    </div></div></div>
+    <div class="card"><div class="card-head"><h3>📸 ${c.name} — Files</h3></div>
+    <div class="card-body" id="ownerPhotos_${c.name.replace(/\s/g,'_')}">
+      <p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Loading...</p>
+    </div></div>`;
+  });
+  setTimeout(()=>{ CACHE.cats.forEach(c=>loadOwnerPhotos(c.name)); },300);
+  return html;
+}
+
+function renderBilling(){
+  const totalDue=CACHE.cats.reduce((a,c)=>a+(calcBill(c.name)?.total||0),0);
+  const reminders=CACHE.cats.filter(c=>calcBill(c.name)?.reminderDue);
+  return`<div class="sec-head"><h3>Billing</h3><button class="btn btn-sm btn-dl" onclick="downloadAllBills()">⬇ All Bills</button></div>
+  ${reminders.length>0?`<div class="reminder-banner"><div class="rb-title">🔔 PAYMENT REMINDERS DUE (${reminders.length})</div>${reminders.map(c=>`<p>• ${c.name} — ${c.owner} — 📞 ${c.phone} — <strong>₹${calcBill(c.name).total}</strong></p>`).join('')}</div>`:''}
+  <div class="stat-grid"><div class="stat-box"><div class="stat-val">₹${totalDue}</div><div class="stat-lbl">Total Due</div></div>
+  <div class="stat-box"><div class="stat-val">${reminders.length}</div><div class="stat-lbl">Remind Now</div></div></div>
+  ${CACHE.cats.map(c=>{const b=calcBill(c.name);if(!b)return'';
+    return`<div class="card"><div class="card-head"><h3>🐱 ${c.name}</h3><span class="ch-right" style="color:${b.reminderDue?'#fca':'var(--mint)'}">${b.reminderDue?'⚠️ Remind':'✓ OK'}</span></div>
+    <div class="card-body">
+      <div class="pay-row"><div class="pr-left"><div class="pr-title">🏠 Foster Charges</div><div class="pr-sub">${b.days} days × ₹${b.ratePerDay} (${b.foodPlan})</div></div><div class="pr-amt">₹${b.boarding}</div></div>
+      <div class="pay-row"><div class="pr-left"><div class="pr-title">🚕 Auto Fare</div><div class="pr-sub">${CACHE.fares.filter(f=>f.catName===c.name).length} trips</div></div><div class="pr-amt">₹${b.fareTotal}</div></div>
+      <div class="pay-row"><div class="pr-left"><div class="pr-title">🪣 Litter Refill</div><div class="pr-sub">${CACHE.litters.filter(l=>l.catName===c.name).length} refills</div></div><div class="pr-amt">₹${b.litterTotal}</div></div>
+      <div style="background:var(--warm);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;margin-top:8px;font-weight:700;font-size:15px"><span>Total Due</span><span style="color:var(--amber)">₹${b.total}</span></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">📞 ${c.owner} · ${c.phone}</p>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-sm btn-dl" style="flex:1" onclick="downloadBill('${c.name}')">⬇ Bill PDF</button>
+        ${b.reminderDue?`<button class="btn btn-sm btn-outline" style="flex:1" onclick="dismissReminder('${c.id}','${c.name}')">✓ Reminded</button>`:''}
+      </div>
+    </div></div>`;}).join('')}`;
+}
+
+function renderBookings(){
+  const pending=CACHE.bookingRequests.filter(b=>b.status==='pending');
+  const confirmed=CACHE.bookingRequests.filter(b=>b.status==='confirmed');
+  const rejected=CACHE.bookingRequests.filter(b=>b.status==='rejected');
+  return`<div class="sec-head"><h3>Booking Requests</h3><span class="badge badge-red">${pending.length} pending</span></div>
+  ${pending.length===0?'<p style="font-size:12px;color:var(--muted);margin-bottom:12px;text-align:center">No pending requests</p>':'<p style="font-size:12px;color:var(--muted);margin-bottom:12px">Tap Confirm to admit or Reject to decline</p>'}
+  ${pending.map(b=>`<div class="booking-card">
+    <div class="bc-head"><div><div class="bc-name">🐱 ${b.catName} — ${b.customerName}</div>
+    <div class="bc-info">📞 ${b.phone}<br>Plan: ${b.plan}<br>${b.notes?'Note: '+b.notes:''}</div></div>
+    <span class="badge badge-amber">Pending</span></div>
+    <div class="booking-actions">
+      <button class="btn btn-sm btn-sage" style="flex:1" onclick="confirmBooking('${b.id}','${b.customerName}','${b.catName}','${b.phone}','${b.plan}')">✓ Confirm &amp; Admit</button>
+      <button class="btn btn-sm btn-red" style="flex:1" onclick="rejectBookingWithReason('${b.id}','${b.customerName}','${b.catName}')">✗ Reject</button>
+    </div></div>`).join('')}
+  ${confirmed.length>0?`<div class="card"><div class="card-head"><h3>✅ Confirmed</h3></div><div class="card-body">
+    ${confirmed.map(b=>`<div class="list-item"><div class="li-icon">✅</div><div><div class="li-title">${b.catName} — ${b.customerName}</div>
+    <div class="li-sub">📞 ${b.phone} · ${b.plan}</div></div></div>`).join('')}</div></div>`:''}
+  ${rejected.length>0?`<div class="card"><div class="card-head"><h3>✗ Rejected</h3><span class="ch-right">${rejected.length} requests</span></div><div class="card-body">
+    ${rejected.map(b=>`<div class="list-item"><div class="li-icon" style="background:#fdecea">✗</div><div><div class="li-title">${b.catName} — ${b.customerName}</div>
+    <div class="li-sub">📞 ${b.phone} · ${b.plan}${b.rejectReason?'<br>Reason: '+b.rejectReason:''}</div></div></div>`).join('')}</div></div>`:''}`;
+}
+
+function renderFaresOwner(){
+  return`<div class="sec-head"><h3>Fares &amp; Litter</h3></div>
+  <div class="stat-grid"><div class="stat-box"><div class="stat-val">₹${CACHE.fares.reduce((a,b)=>a+Number(b.amt),0)}</div><div class="stat-lbl">Total Fares</div></div>
+  <div class="stat-box"><div class="stat-val">₹${CACHE.litters.reduce((a,b)=>a+Number(b.amt),0)}</div><div class="stat-lbl">Total Litter</div></div></div>
+  <div class="card"><div class="card-head"><h3>Auto Fares</h3></div><div class="card-body">
+    ${CACHE.fares.length===0?'<p style="color:var(--muted);text-align:center;padding:16px;font-size:13px">None yet</p>':
+    CACHE.fares.map(f=>`<div class="pay-row"><div class="pr-left"><div class="pr-title">🚕 ${f.desc} — ${f.catName}</div><div class="pr-sub">${f.date} · by ${f.by}</div></div><div class="pr-amt">₹${f.amt}</div></div>`).join('')}</div></div>
+  <div class="card"><div class="card-head"><h3>Litter Refills</h3></div><div class="card-body">
+    ${CACHE.litters.length===0?'<p style="color:var(--muted);text-align:center;padding:16px;font-size:13px">None yet</p>':
+    CACHE.litters.map(l=>`<div class="pay-row"><div class="pr-left"><div class="pr-title">🪣 ${l.desc} — ${l.catName}</div><div class="pr-sub">${l.date}</div></div><div class="pr-amt">₹${l.amt}</div></div>`).join('')}</div></div>`;
+}
+
+let _logFilterCat='all';
+function renderLogs(){
+  const catOptions=CACHE.cats.map(c=>`<option value="${c.name}" ${_logFilterCat===c.name?'selected':''}>${c.name}</option>`).join('');
+  const filtered=_logFilterCat==='all'?CACHE.healthLogs:CACHE.healthLogs.filter(l=>l.catName===_logFilterCat);
+  return`<div class="sec-head"><h3>Activity Log</h3></div>
+  <div class="card"><div class="card-head"><h3>Filter by Cat</h3></div><div class="card-body">
+    <select style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);font-size:13px" onchange="_logFilterCat=this.value;renderView('logs')">
+      <option value="all" ${_logFilterCat==='all'?'selected':''}>All Cats</option>
+      ${catOptions}
+    </select>
+  </div></div>
+  <div class="card"><div class="card-head"><h3>Timeline ${filtered.length>0?`<span class='badge badge-green'>${filtered.length}</span>`:''}</h3></div><div class="card-body"><div class="timeline">
+    ${filtered.length===0?'<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">No logs found</p>':
+    filtered.map(l=>`<div class="tl-item"><div class="tl-dot"></div>
+      <div class="tl-time">${l.date} · ${l.time} · <strong>${l.catName||'?'}</strong></div>
+      <div class="tl-content">${l.note}</div><span class="tl-tag">${l.type} · ${l.by}</span></div>`).join('')}
+  </div></div></div>`;
+}
+
+// ============================================================
+// COORDINATOR VIEWS
+// ============================================================
+// Deworming schedule intervals in days
+const DEWORM_SCHEDULES={
+  '1 month (30 days)':30,
+  '3 months (90 days)':90,
+  '6 months (180 days)':180,
+  'Yearly (365 days)':365
+};
+// Vaccination schedule intervals in days
+const VACC_SCHEDULES={
+  '3 weeks (21 days — kitten booster)':21,
+  '1 month (30 days)':30,
+  '3 months (90 days)':90,
+  'Yearly (365 days)':365
+};
+
+function addDays(dateStr,days){
+  const d=new Date(dateStr);
+  d.setDate(d.getDate()+days);
+  return d.toISOString().split('T')[0];
+}
+function daysUntil(dateStr){
+  if(!dateStr) return null;
+  const diff=new Date(dateStr)-new Date(getTodayKey());
+  return Math.ceil(diff/86400000);
+}
+function fmtDue(dateStr){
+  if(!dateStr) return '—';
+  const d=daysUntil(dateStr);
+  if(d<0) return `<span style="color:#c62828;font-weight:700">Overdue by ${Math.abs(d)} days!</span>`;
+  if(d===0) return `<span style="color:#e65100;font-weight:700">Due TODAY</span>`;
+  if(d<=7) return `<span style="color:#e65100;font-weight:600">Due in ${d} day${d===1?'':'s'}</span>`;
+  return `<span style="color:var(--sage)">Due ${new Date(dateStr).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>`;
+}
+
+function renderSchedule(){
+  let html=`<div class="sec-head"><h3>Admission Schedule</h3><button class="btn btn-sm btn-primary" onclick="openAddCat()">+ Admit</button></div>`;
+
+  // Global due alerts at top
+  const alerts=[];
+  CACHE.cats.forEach(c=>{
+    if(c.dewormNext){const d=daysUntil(c.dewormNext);if(d<=7) alerts.push(`🪱 <strong>${c.name}</strong> deworming ${d<0?`overdue ${Math.abs(d)}d`:d===0?'TODAY':`in ${d}d`}`);}
+    if(c.vaccNext){const d=daysUntil(c.vaccNext);if(d<=7) alerts.push(`💉 <strong>${c.name}</strong> ${c.vaccName||'vaccination'} ${d<0?`overdue ${Math.abs(d)}d`:d===0?'TODAY':`in ${d}d`}`);}
+  });
+  if(alerts.length>0){
+    html+=`<div class="reminder-banner"><div class="rb-title">⚠️ Upcoming Due (within 7 days)</div>${alerts.map(a=>`<p style="font-size:12px;margin-top:4px">${a}</p>`).join('')}</div>`;
+  }
+
+  CACHE.cats.forEach(c=>{
+    const dewormDays=c.dewormNext?daysUntil(c.dewormNext):null;
+    const vaccDays=c.vaccNext?daysUntil(c.vaccNext):null;
+    html+=`<div class="card">
+      <div class="card-head"><h3>${c.name} <span class="badge badge-green" style="font-size:10px">${c.slot}</span></h3><span class="ch-right">${c.status}</span></div>
+      <div class="card-body">
+        <div class="list-item"><div class="li-icon">📅</div><div><div class="li-title">Admitted: ${c.admitted}</div><div class="li-sub">Discharge: ${c.discharge} · ${c.owner} · 📞${c.phone}</div></div></div>
+        <div class="list-item"><div class="li-icon">🍽️</div><div><div class="li-title">${c.foodPlan}</div><div class="li-sub">₹${RATES[c.foodPlan]||250}/day</div></div></div>
+        <div class="list-item"><div class="li-icon">❤️</div><div><div class="li-title">Health: <span class="badge ${c.health==='stable'?'badge-green':'badge-amber'}">${c.health}</span></div><div class="li-sub">${c.meds}</div></div></div>
+        <div class="list-item"><div class="li-icon" style="${dewormDays!==null&&dewormDays<=7?'background:#fdecea':''}">🪱</div>
+          <div><div class="li-title">Deworming</div>
+          <div class="li-sub">Last: ${c.dewormLast?new Date(c.dewormLast).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Not recorded'}<br>Next: ${c.dewormNext?fmtDue(c.dewormNext):'—'}${c.dewormSched?` · ${c.dewormSched}`:''}</div></div></div>
+        <div class="list-item"><div class="li-icon" style="${vaccDays!==null&&vaccDays<=7?'background:#fdecea':''}">💉</div>
+          <div><div class="li-title">Vaccination${c.vaccName?' — '+c.vaccName:''}</div>
+          <div class="li-sub">Last: ${c.vaccLast?new Date(c.vaccLast).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Not recorded'}<br>Next: ${c.vaccNext?fmtDue(c.vaccNext):'—'}${c.vaccSched?` · ${c.vaccSched}`:''}</div></div></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-outline" style="flex:1;font-size:12px;padding:9px" onclick="openHealthUpdate('${c.id}','${c.name}')">+ Health Update</button>
+          <button class="btn btn-sm btn-sage" onclick="downloadCaseStudy('${c.id}')">⬇ Case</button>
+        </div>
+      </div></div>
+    <div class="card"><div class="card-head"><h3>📸 ${c.name} — Files</h3></div>
+    <div class="card-body" id="coordPhotos_${c.name.replace(/\s/g,'_')}">
+      <p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Loading...</p>
+    </div></div>`;
+  });
+  setTimeout(()=>{ CACHE.cats.forEach(c=>loadCoordPhotos(c.name)); },300);
+  return html;
+}
+
+function renderHealth(){
+  return`<div class="sec-head"><h3>Health Log</h3><button class="btn btn-sm btn-sage" onclick="openHealthLog()">+ Log</button></div>
+  <div class="card"><div class="card-head"><h3>Updates</h3></div><div class="card-body"><div class="timeline">
+    ${CACHE.healthLogs.map(l=>`<div class="tl-item"><div class="tl-dot"></div>
+      <div class="tl-time">${l.time} · ${l.catName||'?'}</div>
+      <div class="tl-content">${l.note}</div><span class="tl-tag">${l.type}</span></div>`).join('')}
+  </div></div></div>`;
+}
+
+const TASK_LIST=[
+  {id:'m_clean',time:'7:00 AM',label:'Morning Cleaning',icon:'🧹'},
+  {id:'litter_am',time:'7:30 AM',label:'Litter Tray (AM)',icon:'🪣'},
+  {id:'feed_am',time:'8:00 AM',label:'Morning Feed',icon:'🍽️'},
+  {id:'med_am',time:'9:00 AM',label:'Medicine (Morning)',icon:'💊'},
+  {id:'a_clean',time:'1:00 PM',label:'Afternoon Cleaning',icon:'🧹'},
+  {id:'feed_pm',time:'2:00 PM',label:'Afternoon Feed',icon:'🍽️'},
+  {id:'litter_pm',time:'2:30 PM',label:'Litter Check (PM)',icon:'🪣'},
+  {id:'e_clean',time:'7:00 PM',label:'Evening Cleaning',icon:'🧹'},
+  {id:'feed_eve',time:'8:00 PM',label:'Evening Feed',icon:'🍽️'},
+  {id:'med_eve',time:'9:00 PM',label:'Medicine (Evening)',icon:'💊'},
+  {id:'bedding',time:'9:30 PM',label:'Bedding Change',icon:'🛏️'}
+];
+
+function renderTasks(){
+  const tasks=CACHE.tasks||{};
+  const done=TASK_LIST.filter(t=>tasks[t.id]).length;
+  const pct=Math.round(done/TASK_LIST.length*100);
+  const allDone=done===TASK_LIST.length;
+  return`<div class="sec-head"><h3>Today's Tasks</h3><p>${done}/${TASK_LIST.length} done</p></div>
+  <div style="margin-bottom:16px"><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+  <p style="font-size:11px;color:var(--muted);margin-top:4px;text-align:right">${pct}% complete</p></div>
+  <div class="card"><div class="card-body" style="padding:10px 14px">
+    ${TASK_LIST.map(t=>`<div class="list-item" style="cursor:pointer" onclick="toggleTask('${t.id}')">
+      <div class="li-icon" style="${tasks[t.id]?'background:#e8f5e9':''}">${tasks[t.id]?'✅':t.icon}</div>
+      <div style="flex:1"><div class="li-title" style="${tasks[t.id]?'text-decoration:line-through;color:var(--muted)':''}">${t.label}</div><div class="li-sub">${t.time}</div></div>
+      <div style="font-size:18px;color:${tasks[t.id]?'var(--sage)':'var(--border)'}">${tasks[t.id]?'✓':'○'}</div>
+    </div>`).join('')}
+  </div></div>
+  <div class="card"><div class="card-head"><h3>📋 Inspection Report</h3><span class="ch-right">Send to Owner</span></div>
+  <div class="card-body">
+    <div class="field"><label>Overall Condition</label>
+      <select id="inspCondition">
+        <option>✅ All Good — No Issues</option>
+        <option>⚠️ Minor Issues — Monitoring</option>
+        <option>🔴 Urgent — Needs Attention</option>
+      </select>
+    </div>
+    <div class="field"><label>Facility Cleanliness</label>
+      <select id="inspClean">
+        <option>⭐⭐⭐ Excellent</option>
+        <option>⭐⭐ Good</option>
+        <option>⭐ Needs Improvement</option>
+      </select>
+    </div>
+    <div class="field"><label>Notes / Observations</label>
+      <textarea id="inspNote" placeholder="Any observations, issues, or special notes for owner..."></textarea>
+    </div>
+    <div style="background:var(--warm);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted)">
+      Tasks completed: <strong>${done}/${TASK_LIST.length} (${pct}%)</strong>
+    </div>
+    <button class="btn btn-primary" onclick="submitInspectionReport()">📤 Send Report to Owner</button>
+  </div></div>`;
+}
+
+function renderUploads(){
+  const catOptions = CACHE.cats.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  return`<div class="sec-head"><h3>Media Uploads</h3></div>
+  <div class="card"><div class="card-head"><h3>Select Cat</h3></div><div class="card-body">
+    <div class="field"><label>Cat</label><select id="uploadCat" onchange="loadCatPhotos()">${catOptions}</select></div>
+  </div></div>
+
+  <div class="card"><div class="card-head"><h3>📄 Upload Prescription</h3></div><div class="card-body">
+    <input type="file" id="rxFile" accept="image/*,.pdf" style="display:none" onchange="uploadFile('rx')">
+    <div class="upload-box" onclick="document.getElementById('rxFile').click()">
+      <div class="ub-icon">📄</div>
+      <p><strong>Tap to upload</strong> prescription</p>
+      <p style="margin-top:4px;font-size:11px">JPG, PNG, PDF accepted</p>
+    </div>
+    <div id="rxProgress" style="display:none;margin-top:10px">
+      <div class="progress-wrap"><div class="progress-fill" id="rxBar" style="width:0%"></div></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px" id="rxStatus">Uploading...</p>
+    </div>
+  </div></div>
+
+  <div class="card"><div class="card-head"><h3>📸 Upload Cat Photo</h3></div><div class="card-body">
+    <input type="file" id="photoFile" accept="image/*,video/*" style="display:none" onchange="uploadFile('photo')">
+    <div class="upload-box" onclick="document.getElementById('photoFile').click()">
+      <div class="ub-icon">📸</div>
+      <p><strong>Tap to upload</strong> photo or video</p>
+      <p style="margin-top:4px;font-size:11px">Visible to customer in their app</p>
+    </div>
+    <div id="photoProgress" style="display:none;margin-top:10px">
+      <div class="progress-wrap"><div class="progress-fill" id="photoBar" style="width:0%"></div></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:4px" id="photoStatus">Uploading...</p>
+    </div>
+  </div></div>
+
+  <div class="card"><div class="card-head"><h3>🖼️ Uploaded Files</h3><span class="ch-right" id="photoCount">Loading...</span></div>
+  <div class="card-body" id="uploadedGrid">
+    <p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Select a cat to view uploads</p>
+  </div></div>`;
+}
+
+// ============================================================
+// CARETAKER VIEWS
+// ============================================================
+function renderLitter(){
+  return`<div class="sec-head"><h3>Litter Refill Log</h3></div>
+  <div class="card" style="background:var(--forest)"><div class="card-body" style="padding:16px">
+    <p style="font-size:11px;color:var(--mint);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Rate</p>
+    <p style="font-size:20px;font-weight:700;color:var(--gold)">₹${LITTER_RATE}/kg</p>
+    <p style="font-size:12px;color:rgba(248,244,237,.6);margin-top:4px">Enter kg → amount auto calculated</p>
+  </div></div>
+  <div class="card"><div class="card-head"><h3>Log New Refill</h3></div><div class="card-body">
+    <div class="field"><label>Cat</label><select id="lCat">${CACHE.cats.map(c=>`<option value="${c.name}">${c.name} — Slot ${c.slot}</option>`).join('')}</select></div>
+    <div class="field"><label>Quantity (kg)</label><input type="number" id="lKg" placeholder="e.g. 2" oninput="calcLitterAmt()"></div>
+    <div style="background:var(--warm);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:13px;color:var(--muted)">Amount</span>
+      <span style="font-size:16px;font-weight:700;color:var(--amber)" id="litterCalc">₹0</span>
+    </div>
+    <div class="field"><label>Note (optional)</label><input type="text" id="lDesc" placeholder="e.g. Full tray change"></div>
+    <button class="btn btn-primary" onclick="saveLitter()">Submit Log</button>
+  </div></div>
+  <div class="card"><div class="card-head"><h3>Recent Refills</h3></div><div class="card-body">
+    ${CACHE.litters.length===0?'<p style="color:var(--muted);text-align:center;padding:16px;font-size:13px">No logs yet</p>':
+    CACHE.litters.map(l=>`<div class="list-item"><div class="li-icon">🪣</div>
+      <div style="flex:1"><div class="li-title">${l.catName}</div><div class="li-sub">${l.desc} · ${l.date}</div></div>
+      <div style="font-weight:700;color:var(--amber)">₹${l.amt}</div></div>`).join('')}
+  </div></div>`;
+}
+
+function renderFareLog(){
+  return`<div class="sec-head"><h3>Auto Fare Log</h3></div>
+  <div class="card" style="background:var(--forest)"><div class="card-body" style="padding:16px">
+    <p style="font-size:11px;color:var(--mint);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">How it works</p>
+    <p style="font-size:13px;color:var(--cream);line-height:1.7">Pay auto → log here → Owner pays cash weekly ⚡ Instantly visible on Owner screen</p>
+  </div></div>
+  <div class="card"><div class="card-head"><h3>Log New Fare</h3></div><div class="card-body">
+    <div class="field"><label>Cat</label><select id="fCat">${CACHE.cats.map(c=>`<option value="${c.name}">${c.name}</option>`).join('')}</select></div>
+    <div class="field"><label>Amount (₹)</label><input type="number" id="fAmt" placeholder="e.g. 120"></div>
+    <div class="field"><label>Description</label><input type="text" id="fDesc" placeholder="e.g. Clinic visit"></div>
+    <button class="btn btn-accent" onclick="saveFare()">Submit Fare</button>
+  </div></div>
+  ${CACHE.fares.length>0?`<div class="card"><div class="card-head"><h3>My Logged Fares</h3><span class="ch-right">₹${CACHE.fares.reduce((a,b)=>a+Number(b.amt),0)}</span></div>
+  <div class="card-body">${CACHE.fares.map(f=>`<div class="pay-row"><div class="pr-left"><div class="pr-title">🚕 ${f.desc}</div><div class="pr-sub">${f.catName} · ${f.date}</div></div><div class="pr-amt">₹${f.amt}</div></div>`).join('')}</div></div>`:''}`;
+}
+
+// ============================================================
+// CUSTOMER VIEWS
+// ============================================================
+function getMyCats(){return CACHE.cats.filter(c=>c.phone===currentCustomerPhone);}
+
+function renderMyCats(){
+  const cats=getMyCats();
+  if(cats.length===0) return`<div style="padding:40px;text-align:center"><p style="font-size:40px">🐱</p><p style="color:var(--muted);margin-top:10px">No cats found for ${currentCustomerPhone}</p><p style="font-size:12px;color:var(--muted);margin-top:6px">Contact SSSN to link your cats</p></div>`;
+  let html=`<div class="sec-head"><h3>My Cats</h3><p>${cats.length} cat${cats.length>1?'s':''}</p></div>`;
+  cats.forEach(c=>{
+    html+=`<div class="cat-card">
+      <div class="cat-avatar">🐱</div>
+      <div style="flex:1"><div class="cat-name">${c.name}</div>
+      <div class="cat-info">${c.breed} · ${c.age} · Slot ${c.slot}</div>
+      <div class="cat-badges"><span class="badge badge-green">${c.status}</span><span class="badge ${c.health==='stable'?'badge-green':'badge-amber'}">${c.health}</span></div>
+      </div></div>
+    <div class="card"><div class="card-head"><h3>${c.name} — Health Updates</h3></div><div class="card-body"><div class="timeline">
+      ${CACHE.healthLogs.filter(l=>l.catName===c.name).slice(0,5).map(l=>`<div class="tl-item"><div class="tl-dot"></div>
+        <div class="tl-time">${l.date} · ${l.time}</div><div class="tl-content">${l.note}</div></div>`).join('')}
+    </div></div></div>
+    <div class="card"><div class="card-head"><h3>📸 Photos &amp; Prescriptions</h3></div>
+    <div class="card-body" id="custPhotos_${c.name.replace(/\s/g,'_')}">
+      <p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Loading...</p>
+    </div></div>`;
+  });
+  setTimeout(()=>{ cats.forEach(c=>loadCustomerPhotos(c.name)); },300);
+  return html;
+}
+
+function renderMyBill(){
+  const cats=getMyCats();
+  if(cats.length===0) return`<p style="padding:30px;text-align:center;color:var(--muted)">No cats found. Contact SSSN.</p>`;
+  let html=`<div class="sec-head"><h3>My Bill</h3><p>${cats.length} cat${cats.length>1?'s':''}</p></div>`;
+  cats.forEach(cat=>{
+    const b=calcBill(cat.name); if(!b) return;
+    const fareEntries=CACHE.fares.filter(f=>f.catName===cat.name);
+    const litEntries=CACHE.litters.filter(l=>l.catName===cat.name);
+    html+=`${b.reminderDue?`<div class="reminder-banner"><div class="rb-title">🔔 Payment Reminder — ${cat.name}</div><p>Weekly payment of <strong>₹${b.total}</strong> is due. Please pay at facility.</p></div>`:''}
+    <div class="card"><div class="card-head"><h3>🐱 ${cat.name}</h3><span class="ch-right">${cat.foodPlan}</span></div><div class="card-body">
+      <div class="pay-row"><div class="pr-left"><div class="pr-title">🏠 Foster Charges</div><div class="pr-sub">${b.days} days × ₹${b.ratePerDay} (${b.foodPlan})</div></div><div class="pr-amt">₹${b.boarding}</div></div>
+      ${fareEntries.map(f=>`<div class="pay-row"><div class="pr-left"><div class="pr-title">🚕 ${f.desc}</div><div class="pr-sub">${f.date}</div></div><div class="pr-amt">₹${f.amt}</div></div>`).join('')}
+      ${litEntries.map(l=>`<div class="pay-row"><div class="pr-left"><div class="pr-title">🪣 ${l.desc}</div><div class="pr-sub">${l.date}</div></div><div class="pr-amt">₹${l.amt}</div></div>`).join('')}
+      <div style="background:var(--warm);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;margin-top:8px;font-weight:700;font-size:15px"><span>Total Due</span><span style="color:var(--amber)">₹${b.total}</span></div>
+      <button class="btn btn-dl" style="margin-top:10px" onclick="downloadBill('${cat.name}')">⬇ Download Bill PDF</button>
+    </div></div>`;
+  });
+
+  return html;
+}
+
+function renderBook(){
+  const myPhone=currentCustomerPhone||'';
+  const myBookings=CACHE.bookingRequests.filter(b=>b.phone===myPhone);
+  const days=['S','M','T','W','T','F','S'];
+  const today=new Date();
+  const firstDay=new Date(today.getFullYear(),today.getMonth(),1).getDay();
+  const daysInMonth=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+  let cells=days.map(d=>`<div class="cal-day header">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++) cells+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const isToday=d===today.getDate();
+    const booked=[3,4,5,6,7].includes(d);
+    cells+=`<div class="cal-day ${booked?'booked':isToday?'today available':'available'}" onclick="${booked?`toast('Date already booked')`:`toast('Date ${d} selected ✓')`}">${d}</div>`;
+  }
+  let statusHtml='';
+  if(myBookings.length>0){
+    statusHtml=`<div class="card"><div class="card-head"><h3>📋 My Requests</h3></div><div class="card-body">
+      ${myBookings.map(b=>{
+        let badge='', msg='';
+        if(b.status==='pending'){badge='<span class="badge badge-amber">Pending</span>';msg='We will call/WhatsApp you soon to confirm.';}
+        else if(b.status==='confirmed'){badge='<span class="badge badge-green">Confirmed ✓</span>';msg='Your booking is confirmed! See you at SSSN.';}
+        else if(b.status==='rejected'){badge='<span class="badge badge-red">Not Available</span>';msg=b.rejectReason?'Reason: '+b.rejectReason:'Sorry, we could not accommodate this request.';}
+        return`<div class="list-item"><div class="li-icon">${b.status==='confirmed'?'✅':b.status==='rejected'?'❌':'⏳'}</div>
+          <div><div class="li-title">🐱 ${b.catName} · ${b.plan}</div>
+          <div class="li-sub">${msg}</div>
+          <div style="margin-top:4px">${badge}</div></div></div>`;
+      }).join('')}
+    </div></div>`;
+  }
+  return`<div class="sec-head"><h3>Book a Slot</h3></div>
+  <div style="background:var(--forest);border-radius:14px;padding:14px 16px;margin-bottom:14px">
+    <p style="color:var(--mint);font-size:12px;font-weight:600">📞 After submitting, we will call/WhatsApp you to confirm</p>
+  </div>
+  ${statusHtml}
+  <div class="card"><div class="card-head"><h3>Select Dates</h3><span class="ch-right">🔴 Booked 🟢 Free</span></div>
+  <div class="card-body"><div class="cal-grid">${cells}</div></div></div>
+  <div class="card"><div class="card-head"><h3>New Request</h3></div><div class="card-body">
+    <div class="field"><label>Your Name</label><input type="text" id="bName" placeholder="Full name"></div>
+    <div class="field"><label>Cat Name</label><input type="text" id="bCat" placeholder="Cat's name"></div>
+    <div class="field"><label>Cat Age &amp; Breed</label><input type="text" id="bBreed" placeholder="e.g. 2 years, Indie"></div>
+    <div class="field"><label>Phone</label><input type="tel" id="bPhone" value="${currentCustomerPhone||''}" placeholder="10-digit number"></div>
+    <div class="field"><label>Boarding Plan</label><select id="bPlan"><option>Without Food — ₹250/day</option><option>With Food — ₹350/day</option></select></div>
+    <div class="field"><label>Notes</label><textarea id="bNotes" placeholder="Medical conditions, special requirements..."></textarea></div>
+    <button class="btn btn-primary" onclick="submitBooking()">Send Booking Request</button>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px">We will confirm by call / WhatsApp 📞</p>
+  </div></div>`;
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function calcLitterAmt(){
+  const kg=parseFloat(document.getElementById('lKg')?.value||0);
+  document.getElementById('litterCalc').textContent='₹'+(kg*LITTER_RATE||0);
+}
+
+async function toggleTask(id){
+  const key=getTodayKey();
+  const current=CACHE.tasks[id]||false;
+  try{await db.collection('tasks').doc(key).set({[id]:!current},{merge:true});}catch(e){toast('Error saving');}
+}
+
+async function submitInspectionReport(){
+  const condition=document.getElementById('inspCondition')?.value;
+  const cleanliness=document.getElementById('inspClean')?.value;
+  const note=document.getElementById('inspNote')?.value||'';
+  const tasks=CACHE.tasks||{};
+  const done=TASK_LIST.filter(t=>tasks[t.id]).length;
+  const pct=Math.round(done/TASK_LIST.length*100);
+  try{
+    await db.collection('inspectionReports').add({
+      condition,cleanliness,note,
+      tasksDone:done,tasksTotal:TASK_LIST.length,tasksPct:pct,
+      date:getTodayKey(),time:nowTime(),
+      by:'coordinator',ts:Date.now()
+    });
+    toast('Report sent to Owner ✓');
+    document.getElementById('inspNote').value='';
+  }catch(e){toast('Error sending report');}
+}
+
+async function saveLitter(){
+  const catName=document.getElementById('lCat')?.value;
+  const kg=parseFloat(document.getElementById('lKg')?.value);
+  if(!kg||isNaN(kg)){toast('Enter quantity in kg');return;}
+  const amt=kg*LITTER_RATE;
+  const desc=(document.getElementById('lDesc')?.value||'')||`${kg}kg litter refill`;
+  try{
+    await db.collection('litters').add({catName,date:getTodayKey(),amt,kg,desc,by:'caretaker',ts:Date.now()});
+    await db.collection('healthLogs').add({catName,time:nowTime(),date:'Today',note:`${desc} — ${kg}kg — ₹${amt}`,type:'litter',by:'caretaker',ts:Date.now()});
+    toast('Litter log saved ✓');
+    document.getElementById('lKg').value='';
+    document.getElementById('lDesc').value='';
+    document.getElementById('litterCalc').textContent='₹0';
+  }catch(e){toast('Error saving');}
+}
+
+async function saveFare(){
+  const catName=document.getElementById('fCat')?.value;
+  const amt=parseFloat(document.getElementById('fAmt')?.value);
+  const desc=document.getElementById('fDesc')?.value||'Vet visit';
+  if(!amt||isNaN(amt)){toast('Enter amount');return;}
+  try{
+    await db.collection('fares').add({catName,date:getTodayKey(),amt,desc,by:'caretaker',ts:Date.now()});
+    toast('Fare logged ✓ — Visible to owner now');
+    document.getElementById('fAmt').value='';
+    document.getElementById('fDesc').value='';
+  }catch(e){toast('Error saving');}
+}
+
+async function dismissReminder(catId,catName){
+  try{await db.collection('cats').doc(catId).update({lastReminder:getTodayKey()});toast('Reminder reset ✓');}catch(e){toast('Error');}
+}
+
+async function deleteCat(catId,catName){
+  if(!confirm(`Delete ${catName}? Isse related saare logs, photos aur data bhi delete honge.`)) return;
+  try{
+    await db.collection('cats').doc(catId).delete();
+    const logSnap=await db.collection('healthLogs').where('catName','==',catName).get();
+    for(const doc of logSnap.docs) await doc.ref.delete();
+    const upSnap=await db.collection('uploads').where('catName','==',catName).get();
+    for(const doc of upSnap.docs) await doc.ref.delete();
+    const fareSnap=await db.collection('fares').where('catName','==',catName).get();
+    for(const doc of fareSnap.docs) await doc.ref.delete();
+    const litSnap=await db.collection('litters').where('catName','==',catName).get();
+    for(const doc of litSnap.docs) await doc.ref.delete();
+    toast(`${catName} aur saara data delete ho gaya`);
+  }catch(e){toast('Error — check Firestore rules');}
+}
+
+async function deleteUpload(uploadId, catName){
+  if(!confirm('Is file ko delete karna hai?')) return;
+  try{
+    await db.collection('uploads').doc(uploadId).delete();
+    toast('File deleted ✓');
+    // Reload photos
+    setTimeout(()=>{
+      loadOwnerPhotos(catName);
+      loadCoordPhotos(catName);
+    },500);
+  }catch(e){toast('Delete failed');}
+}
+
+async function autoCleanRejectedBookings(){
+  try{
+    const cutoff=Date.now()-(48*60*60*1000);
+    const snap=await db.collection('bookingRequests').where('status','==','rejected').get();
+    for(const doc of snap.docs){
+      const d=doc.data();
+      if(d.ts && d.ts<cutoff) await doc.ref.delete();
+    }
+  }catch(e){}
+}
+
+async function confirmBooking(id,customerName,catName,phone,plan){
+  try{
+    await db.collection('bookingRequests').doc(id).update({status:'confirmed'});
+    openAddCatPrefilled(customerName,catName,phone,plan);
+    toast('Booking confirmed — admit cat below');
+  }catch(e){toast('Error');}
+}
+
+async function rejectBooking(id,reason){
+  try{await db.collection('bookingRequests').doc(id).update({status:'rejected',rejectReason:reason||''});toast('Booking rejected');}catch(e){toast('Error');}
+}
+
+function rejectBookingWithReason(id,customerName,catName){
+  document.getElementById('modalContent').innerHTML=`<div class="modal-title">Reject Booking</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Rejecting request for <strong>${catName}</strong> from ${customerName}</p>
+    <div class="field"><label>Reason (shown to customer)</label>
+      <select id="rejectReasonSel" onchange="document.getElementById('rejectReasonCustom').style.display=this.value==='Other'?'block':'none'">
+        <option>No slots available for requested dates</option>
+        <option>Slot full — please try another date</option>
+        <option>Unable to accommodate health/medical needs</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field" id="rejectReasonCustom" style="display:none"><label>Custom Reason</label><input type="text" id="rejectReasonText" placeholder="Type reason..."></div>
+    <button class="btn btn-red" style="margin-bottom:8px" onclick="doRejectBooking('${id}')">Confirm Rejection</button>
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function doRejectBooking(id){
+  const sel=document.getElementById('rejectReasonSel').value;
+  const custom=document.getElementById('rejectReasonText')?.value;
+  const reason=sel==='Other'?(custom||'Booking rejected'):sel;
+  await rejectBooking(id,reason);
+  closeModal();
+}
+
+async function submitBooking(){
+  const name=document.getElementById('bName')?.value;
+  const cat=document.getElementById('bCat')?.value;
+  const phone=document.getElementById('bPhone')?.value;
+  if(!name||!cat||!phone){toast('Fill all required fields');return;}
+  try{
+    await db.collection('bookingRequests').add({customerName:name,catName:cat,phone,plan:document.getElementById('bPlan').value,notes:document.getElementById('bNotes')?.value||'',status:'pending',ts:Date.now()});
+    toast('Booking request sent! We will call/WhatsApp you 🐾');
+  }catch(e){toast('Request noted!');}
+}
+
+
+
+// ============================================================
+// MODALS
+// ============================================================
+function openHealthLog(){
+  document.getElementById('modalContent').innerHTML=`<div class="modal-title">Add Health Log</div>
+    <div class="field"><label>Cat</label><select id="hCat">${CACHE.cats.map(c=>`<option value="${c.name}">${c.name}</option>`).join('')}</select></div>
+    <div class="field"><label>Type</label><select id="hType"><option>feeding</option><option>medicine</option><option>litter</option><option>observation</option></select></div>
+    <div class="field"><label>Note</label><textarea id="hNote" placeholder="Describe the update..."></textarea></div>
+    <button class="btn btn-sage" onclick="saveHealthLog()">Save</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function saveHealthLog(){
+  const catName=document.getElementById('hCat').value;
+  const type=document.getElementById('hType').value;
+  const note=document.getElementById('hNote').value;
+  if(!note){toast('Add a note');return;}
+  try{await db.collection('healthLogs').add({catName,time:nowTime(),date:'Today',note,type,by:'coordinator',ts:Date.now()});closeModal();toast('Log saved ✓');}catch(e){toast('Error');}
+}
+
+function openHealthUpdate(catId,catName){
+  const cat=CACHE.cats.find(c=>c.id===catId);
+  if(!cat) return;
+  const dewormOpts=Object.keys(DEWORM_SCHEDULES).map(k=>`<option value="${k}">${k}</option>`).join('');
+  const vaccOpts=Object.keys(VACC_SCHEDULES).map(k=>`<option value="${k}">${k}</option>`).join('');
+
+  document.getElementById('modalContent').innerHTML=`<div class="modal-title">Update ${catName}</div>
+
+    <div class="field"><label>Health Status</label>
+      <select id="hStatus">
+        <option value="stable" ${cat.health==='stable'?'selected':''}>Stable</option>
+        <option value="recovering" ${cat.health==='recovering'?'selected':''}>Recovering</option>
+        <option value="critical" ${cat.health==='critical'?'selected':''}>Critical</option>
+      </select></div>
+    <div class="field"><label>Medications</label><input type="text" id="hMeds" value="${cat.meds||''}"></div>
+
+    <div style="background:var(--warm);border-radius:12px;padding:14px;margin-bottom:14px">
+      <p style="font-size:12px;font-weight:700;color:var(--forest);margin-bottom:10px">🪱 Deworming</p>
+      ${cat.dewormNext?`<p style="font-size:11px;margin-bottom:8px">Current next due: ${fmtDue(cat.dewormNext)}</p>`:''}
+      <div class="field" style="margin-bottom:8px"><label>Last Deworming Date</label>
+        <input type="date" id="dewormDate" value="${cat.dewormLast||''}"></div>
+      <div class="field" style="margin-bottom:0"><label>Repeat every</label>
+        <select id="dewormSched">${dewormOpts}</select></div>
+    </div>
+
+    <div style="background:var(--warm);border-radius:12px;padding:14px;margin-bottom:14px">
+      <p style="font-size:12px;font-weight:700;color:var(--forest);margin-bottom:10px">💉 Vaccination</p>
+      ${cat.vaccNext?`<p style="font-size:11px;margin-bottom:8px">Current next due: ${fmtDue(cat.vaccNext)}</p>`:''}
+      <div class="field" style="margin-bottom:8px"><label>Vaccine Name</label>
+        <input type="text" id="vaccName" value="${cat.vaccName||''}" placeholder="e.g. FVRCP, Rabies"></div>
+      <div class="field" style="margin-bottom:8px"><label>Last Vaccination Date</label>
+        <input type="date" id="vaccDate" value="${cat.vaccLast||''}"></div>
+      <div class="field" style="margin-bottom:0"><label>Repeat every</label>
+        <select id="vaccSched">${vaccOpts}</select></div>
+    </div>
+
+    <div class="field"><label>General Note</label><textarea id="hNote" placeholder="Any other updates..."></textarea></div>
+    <button class="btn btn-sage" onclick="saveHealthUpdate('${catId}','${catName}')">Save Update</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function saveHealthUpdate(catId,catName){
+  const health=document.getElementById('hStatus').value;
+  const meds=document.getElementById('hMeds').value;
+  const note=document.getElementById('hNote').value;
+  const dewormDate=document.getElementById('dewormDate').value;
+  const dewormSched=document.getElementById('dewormSched').value;
+  const vaccDate=document.getElementById('vaccDate').value;
+  const vaccSched=document.getElementById('vaccSched').value;
+  const vaccName=document.getElementById('vaccName').value;
+
+  const updates={health,meds};
+  const logs=[];
+
+  if(dewormDate){
+    const dewormNext=addDays(dewormDate,DEWORM_SCHEDULES[dewormSched]);
+    updates.dewormLast=dewormDate;
+    updates.dewormNext=dewormNext;
+    updates.dewormSched=dewormSched;
+    logs.push(`🪱 Deworming done on ${dewormDate}. Next due: ${dewormNext} (${dewormSched})`);
+  }
+  if(vaccDate){
+    const vaccNext=addDays(vaccDate,VACC_SCHEDULES[vaccSched]);
+    updates.vaccLast=vaccDate;
+    updates.vaccNext=vaccNext;
+    updates.vaccSched=vaccSched;
+    updates.vaccName=vaccName||'Vaccination';
+    logs.push(`💉 ${vaccName||'Vaccination'} given on ${vaccDate}. Next due: ${vaccNext} (${vaccSched})`);
+  }
+  if(note) logs.push(note);
+
+  try{
+    await db.collection('cats').doc(catId).update(updates);
+    for(const n of logs){
+      await db.collection('healthLogs').add({catName,time:nowTime(),date:getTodayKey(),note:n,type:'observation',by:'coordinator',ts:Date.now()});
+    }
+    closeModal();toast('Updated ✓');
+  }catch(e){toast('Error updating');}
+}
+
+function openAddCat(){openAddCatPrefilled('','','','Without Food');}
+
+function openAddCatPrefilled(owner,catName,phone,plan){
+  document.getElementById('modalContent').innerHTML=`<div class="modal-title">Admit Cat</div>
+    <div class="field"><label>Cat Name</label><input type="text" id="ncName" value="${catName}" placeholder="Name"></div>
+    <div class="field"><label>Breed</label><input type="text" id="ncBreed" placeholder="Breed"></div>
+    <div class="field"><label>Age</label><input type="text" id="ncAge" placeholder="e.g. 2y"></div>
+    <div class="field"><label>Owner Name</label><input type="text" id="ncOwner" value="${owner}" placeholder="Owner full name"></div>
+    <div class="field"><label>Owner Phone</label><input type="tel" id="ncPhone" value="${phone}" placeholder="10-digit number"></div>
+    <div class="field"><label>Food Plan</label><select id="ncFood"><option ${plan==='Without Food'?'selected':''}>Without Food</option><option ${plan==='With Food'?'selected':''}>With Food</option></select></div>
+    <div class="field"><label>Slot</label><input type="text" id="ncSlot" placeholder="e.g. A3"></div>
+    <div class="field"><label>Discharge Date</label><input type="date" id="ncDischarge"></div>
+    <div class="field"><label>Medications / Notes</label><input type="text" id="ncMeds" placeholder="e.g. Deworming done"></div>
+    <button class="btn btn-primary" onclick="addCat()">Admit Cat</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function addCat(){
+  const name=document.getElementById('ncName').value;
+  if(!name){toast('Enter cat name');return;}
+  const today=getTodayKey();
+  try{
+    await db.collection('cats').add({name,breed:document.getElementById('ncBreed').value,age:document.getElementById('ncAge').value,owner:document.getElementById('ncOwner').value,phone:document.getElementById('ncPhone').value,foodPlan:document.getElementById('ncFood').value,status:'boarding',admitted:today,discharge:document.getElementById('ncDischarge').value,slot:document.getElementById('ncSlot').value,health:'stable',meds:document.getElementById('ncMeds').value||'None',lastReminder:today});
+    closeModal();toast('Cat admitted ✓');
+  }catch(e){toast('Error saving');}
+}
+
+function openEditCat(catId){
+  const cat=CACHE.cats.find(c=>c.id===catId);
+  if(!cat) return;
+  document.getElementById('modalContent').innerHTML=`<div class="modal-title">Edit ${cat.name}</div>
+    <div class="field"><label>Status</label><select id="eStatus"><option ${cat.status==='boarding'?'selected':''}>boarding</option><option ${cat.status==='rehab'?'selected':''}>rehab</option><option ${cat.status==='discharged'?'selected':''}>discharged</option></select></div>
+    <div class="field"><label>Food Plan</label><select id="ePlan"><option ${cat.foodPlan==='Without Food'?'selected':''}>Without Food</option><option ${cat.foodPlan==='With Food'?'selected':''}>With Food</option></select></div>
+    <div class="field"><label>Discharge Date</label><input type="date" id="eDischarge" value="${cat.discharge||''}"></div>
+    <div class="field"><label>Slot</label><input type="text" id="eSlot" value="${cat.slot||''}"></div>
+    <div class="field"><label>Medications</label><input type="text" id="eMeds" value="${cat.meds||''}"></div>
+    <div class="field"><label>Owner Phone</label><input type="tel" id="ePhone" value="${cat.phone||''}"></div>
+    <button class="btn btn-primary" onclick="saveEditCat('${catId}')">Save Changes</button>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function saveEditCat(catId){
+  try{
+    await db.collection('cats').doc(catId).update({status:document.getElementById('eStatus').value,foodPlan:document.getElementById('ePlan').value,discharge:document.getElementById('eDischarge').value,slot:document.getElementById('eSlot').value,meds:document.getElementById('eMeds').value,phone:document.getElementById('ePhone').value});
+    closeModal();toast('Updated ✓');
+  }catch(e){toast('Error updating');}
+}
+
+// ============================================================
+// PDF DOWNLOAD
+// ============================================================
+function downloadBill(catName){
+  const cat=CACHE.cats.find(c=>c.name===catName); if(!cat) return;
+  const b=calcBill(catName); if(!b) return;
+  const fareEntries=CACHE.fares.filter(f=>f.catName===catName);
+  const litEntries=CACHE.litters.filter(l=>l.catName===catName);
+  const today=new Date().toLocaleDateString('en-IN');
+  const html=`<html><head><style>
+    body{font-family:Arial,sans-serif;padding:30px;color:#1a2e1a;max-width:600px;margin:0 auto;}
+    h1{color:#1a2e1a;border-bottom:2px solid #4a7c59;padding-bottom:10px;}
+    h2{color:#4a7c59;font-size:16px;}
+    table{width:100%;border-collapse:collapse;margin:10px 0;}
+    td{padding:8px 12px;border-bottom:1px solid #d4e0d4;font-size:13px;}
+    td:last-child{text-align:right;font-weight:600;}
+    .total{background:#f0e8d8;font-weight:700;font-size:15px;}
+    .total td{padding:12px;}
+    .upi{background:#1a2e1a;color:#f8f4ed;padding:16px;border-radius:8px;margin-top:20px;text-align:center;}
+    .upi p{margin:4px 0;font-size:13px;}
+    .upi strong{color:#e6b84a;font-size:16px;}
+    .footer{margin-top:30px;font-size:11px;color:#7a8a7a;text-align:center;}
+  </style></head><body>
+  <div style="text-align:center;margin-bottom:16px"><img src="https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg" style="width:70px;height:70px;object-fit:contain;border-radius:10px"></div>
+  <h1>Save Strays Save Nature</h1>
+  <p style="color:#7a8a7a;font-size:12px">Cat Boarding &amp; Care · sssncatboarding.com</p>
+  <h2>Bill for ${catName}</h2>
+  <p style="font-size:12px;color:#7a8a7a">Owner: ${cat.owner} · 📞 ${cat.phone}<br>Admitted: ${cat.admitted} · Slot: ${cat.slot}<br>Generated: ${today}</p>
+  <table>
+    <tr><td>🏠 Foster Charges (${b.days} days × ₹${b.ratePerDay})</td><td>₹${b.boarding}</td></tr>
+    <tr><td colspan="2" style="font-weight:600;padding-top:10px;color:#4a7c59">Auto Fare</td></tr>
+    ${fareEntries.map(f=>`<tr><td>🚕 ${f.desc} (${f.date})</td><td>₹${f.amt}</td></tr>`).join('')}
+    <tr><td colspan="2" style="font-weight:600;padding-top:10px;color:#4a7c59">Litter Refill</td></tr>
+    ${litEntries.map(l=>`<tr><td>🪣 ${l.desc} (${l.date})</td><td>₹${l.amt}</td></tr>`).join('')}
+    <tr class="total"><td>TOTAL AMOUNT DUE</td><td>₹${b.total}</td></tr>
+  </table>
+  <div class="upi">
+    <p>💰 Pay at facility or contact owner for payment details</p>
+    <p style="margin-top:8px;color:#7eb89a">📞 Owner will share payment info on WhatsApp</p>
+  </div>
+  <div class="footer">Thank you for trusting SSSN Cat Boarding with your beloved pet 🐾<br>No online payment processed through this bill. Pay directly via UPI or at facility.</div>
+  </body></html>`;
+  openPrint(html,`Bill_${catName}_${today.replace(/\//g,'-')}`);
+}
+
+function downloadAllBills(){
+  CACHE.cats.forEach(c=>downloadBill(c.name));
+}
+
+async function downloadCaseStudy(catId){
+  const cat=CACHE.cats.find(c=>c.id===catId); if(!cat) return;
+  const b=calcBill(cat.name);
+  const logs=CACHE.healthLogs.filter(l=>l.catName===cat.name);
+  const today=new Date().toLocaleDateString('en-IN');
+
+  // Fetch uploads from Firestore
+  let uploads=[];
+  try{
+    const snap=await db.collection('uploads').where('catName','==',cat.name).orderBy('ts','desc').get();
+    uploads=snap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){}
+
+  const photosSection = uploads.length>0?`
+  <h2>Uploaded Files (${uploads.length})</h2>
+  ${uploads.map(u=>`<div style="padding:6px 0;border-bottom:1px solid #d4e0d4;font-size:12px">
+    <strong>${u.type==='rx'?'📄 Prescription':'📸 Photo'}</strong> · ${u.date}<br>
+    <a href="${u.url}" target="_blank" style="color:#4a7c59;word-break:break-all">${u.url}</a>
+  </div>`).join('')}`:'<p style="font-size:12px;color:#7a8a7a">No files uploaded yet</p>';
+
+  const html=`<html><head><style>
+    body{font-family:Arial,sans-serif;padding:30px;color:#1a2e1a;max-width:600px;margin:0 auto;}
+    h1{color:#1a2e1a;border-bottom:2px solid #4a7c59;padding-bottom:10px;}
+    h2{color:#4a7c59;font-size:15px;margin-top:20px;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+    .info-box{background:#f0e8d8;padding:10px 12px;border-radius:8px;}
+    .info-box p{font-size:10px;color:#7a8a7a;margin-bottom:2px;}
+    .info-box strong{font-size:13px;}
+    .log-item{padding:8px 0;border-bottom:1px solid #d4e0d4;font-size:12px;}
+    .log-time{color:#7a8a7a;font-size:10px;}
+    .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#e8f5e9;color:#2e7d32;}
+    .footer{margin-top:30px;font-size:11px;color:#7a8a7a;text-align:center;}
+    a{color:#4a7c59;}
+  </style></head><body>
+  <div style="text-align:center;margin-bottom:16px"><img src="https://res.cloudinary.com/ddbq7gfmi/image/upload/v1780837027/Screenshot_2024-06-12_000557_logo_c7tayk.jpg" style="width:70px;height:70px;object-fit:contain;border-radius:10px"></div>
+  <h1>Save Strays Save Nature</h1>
+  <p style="color:#7a8a7a;font-size:12px">Cat Case Study · Generated: ${today}</p>
+  <h2>Cat Details — ${cat.name}</h2>
+  <div class="info-grid">
+    <div class="info-box"><p>Cat Name</p><strong>${cat.name}</strong></div>
+    <div class="info-box"><p>Breed / Age</p><strong>${cat.breed} · ${cat.age}</strong></div>
+    <div class="info-box"><p>Owner</p><strong>${cat.owner}</strong></div>
+    <div class="info-box"><p>Phone</p><strong>${cat.phone}</strong></div>
+    <div class="info-box"><p>Slot</p><strong>${cat.slot}</strong></div>
+    <div class="info-box"><p>Status</p><strong>${cat.status}</strong></div>
+    <div class="info-box"><p>Admitted</p><strong>${cat.admitted}</strong></div>
+    <div class="info-box"><p>Discharge</p><strong>${cat.discharge||'TBD'}</strong></div>
+    <div class="info-box"><p>Food Plan</p><strong>${cat.foodPlan}</strong></div>
+    <div class="info-box"><p>Health</p><strong>${cat.health}</strong></div>
+  </div>
+  <p style="font-size:12px;margin-top:10px"><strong>Medications:</strong> ${cat.meds||'None'}</p>
+  ${b?`<h2>Billing Summary</h2>
+  <p style="font-size:13px">Foster: ₹${b.boarding} · Fare: ₹${b.fareTotal} · Litter: ₹${b.litterTotal}<br><strong>Total Due: ₹${b.total}</strong></p>`:''}
+  <h2>Health Log (${logs.length} entries)</h2>
+  ${logs.map(l=>`<div class="log-item"><div class="log-time">${l.date} · ${l.time} · <span class="badge">${l.type}</span></div><div>${l.note}</div></div>`).join('')}
+  ${photosSection}
+  <div class="footer">Save Strays Save Nature · sssncatboarding.com 🐾</div>
+  </body></html>`;
+  openPrint(html,`CaseStudy_${cat.name}_${today.replace(/\//g,'-')}`);
+}
+
+function openPrint(html,title){
+  const w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  w.document.title=title;
+  setTimeout(()=>w.print(),500);
+}
+
+// ============================================================
+// CLOUDINARY UPLOAD
+// ============================================================
+async function uploadFile(type){
+  const fileInput = document.getElementById(type==='rx'?'rxFile':'photoFile');
+  const file = fileInput.files[0];
+  if(!file){toast('No file selected');return;}
+  const catName = document.getElementById('uploadCat')?.value;
+  if(!catName){toast('Select a cat first');return;}
+
+  const progressDiv = document.getElementById(type==='rx'?'rxProgress':'photoProgress');
+  const bar = document.getElementById(type==='rx'?'rxBar':'photoBar');
+  const status = document.getElementById(type==='rx'?'rxStatus':'photoStatus');
+  progressDiv.style.display='block';
+  bar.style.width='20%';
+  status.textContent='Uploading...';
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append('folder', `sssn/${catName}/${type}`);
+  formData.append('tags', `${catName},${type}`);
+  // Determine resource type
+  const isVideo=file.type.startsWith('video/');
+  const resourceType=isVideo?'video':'auto';
+
+  try{
+    bar.style.width='50%';
+    status.textContent=isVideo?'Uploading video (may take a moment)...':'Uploading...';
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`,{method:'POST',body:formData});
+    const data = await res.json();
+    bar.style.width='80%';
+    if(data.secure_url){
+      // Save to Firestore
+      await db.collection('uploads').add({
+        catName, type, url:data.secure_url,
+        publicId:data.public_id,
+        fileName:file.name,
+        date:getTodayKey(),
+        by:currentRole,
+        ts:Date.now()
+      });
+      bar.style.width='100%';
+      status.textContent='✓ Uploaded successfully!';
+      toast('Upload complete ✓');
+      setTimeout(()=>{progressDiv.style.display='none';bar.style.width='0%';},2000);
+      loadCatPhotos();
+    } else {
+      status.textContent='Upload failed — try again';
+      toast('Upload failed');
+    }
+  }catch(e){
+    status.textContent='Error — check connection';
+    toast('Upload error');
+  }
+  fileInput.value='';
+}
+
+async function loadOwnerPhotos(catName){
+  const key=catName.replace(/\s/g,'_');
+  const el=document.getElementById(`ownerPhotos_${key}`);
+  if(!el) return;
+  await renderPhotoGrid(el, catName);
+}
+
+async function loadCoordPhotos(catName){
+  const key=catName.replace(/\s/g,'_');
+  const el=document.getElementById(`coordPhotos_${key}`);
+  if(!el) return;
+  await renderPhotoGrid(el, catName);
+}
+
+async function renderPhotoGrid(el, catName){
+  try{
+    const snap=await db.collection('uploads').where('catName','==',catName).orderBy('ts','desc').get();
+    const uploads=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(uploads.length===0){
+      el.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">No files uploaded yet</p>';
+      return;
+    }
+    const isOwner=currentRole==='owner';
+    el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${uploads.map(u=>{
+        const isVid=u.url.match(/\.(mp4|mov|avi|webm)/i)||u.type==='video';
+        const isRx=u.type==='rx';
+        let preview='';
+        if(isRx) preview=`<div style="background:var(--warm);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="window.open('${u.url}','_blank')"><span style="font-size:28px">📄</span><span style="font-size:9px;color:var(--muted);margin-top:4px">Tap to view</span></div>`;
+        else if(isVid) preview=`<div style="background:#1a2e1a;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="window.open('${u.url}','_blank')"><span style="font-size:28px">🎥</span><span style="font-size:9px;color:var(--mint);margin-top:4px">Tap to play</span></div>`;
+        else preview=`<img src="${u.url}" style="width:100%;aspect-ratio:1;object-fit:cover;cursor:pointer" onclick="window.open('${u.url}','_blank')" loading="lazy">`;
+        return`<div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);position:relative">
+          ${preview}
+          <div style="background:rgba(26,46,26,.85);color:white;font-size:9px;padding:3px 6px;display:flex;justify-content:space-between;align-items:center">
+            <span>${isRx?'📄 Rx':isVid?'🎥 Video':'📸 Photo'} · ${u.date}</span>
+            ${isOwner?`<button onclick="deleteUpload('${u.id}','${catName}')" style="background:#c62828;color:white;border:none;border-radius:4px;font-size:9px;padding:2px 5px;cursor:pointer">🗑</button>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }catch(e){
+    el.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Unable to load</p>';
+  }
+}
+async function loadCatPhotos(){
+  const catName = document.getElementById('uploadCat')?.value;
+  if(!catName) return;
+  const grid = document.getElementById('uploadedGrid');
+  const count = document.getElementById('photoCount');
+  if(!grid) return;
+  grid.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Loading...</p>';
+  try{
+    const snap = await db.collection('uploads').where('catName','==',catName).orderBy('ts','desc').get();
+    const uploads = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(count) count.textContent=`${uploads.length} files`;
+    if(uploads.length===0){
+      grid.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">No uploads yet</p>';
+      return;
+    }
+    grid.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${uploads.map(u=>{
+        const isVid=u.url.match(/\.(mp4|mov|avi|webm)/i)||u.type==='video';
+        const isRx=u.url.includes('.pdf')||u.type==='rx';
+        let preview='';
+        if(isRx) preview=`<div style="background:var(--warm);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="window.open('${u.url}','_blank')"><span style="font-size:28px">📄</span><span style="font-size:9px;color:var(--muted);margin-top:4px;padding:0 4px;text-align:center">${u.fileName||'Prescription'}</span></div>`;
+        else if(isVid) preview=`<div style="background:#1a2e1a;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="window.open('${u.url}','_blank')"><span style="font-size:28px">🎥</span><span style="font-size:9px;color:var(--mint);margin-top:4px">Tap to play</span></div>`;
+        else preview=`<img src="${u.url}" style="width:100%;aspect-ratio:1;object-fit:cover;cursor:pointer" onclick="window.open('${u.url}','_blank')" onerror="this.parentElement.innerHTML='<div style=\'aspect-ratio:1;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)\'>Unable to load</div>'">`;
+        return`<div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);position:relative">
+          ${preview}
+          <div style="background:rgba(26,46,26,.85);color:white;font-size:9px;padding:3px 6px;display:flex;justify-content:space-between;align-items:center">
+            <span>${isRx?'📄 Rx':isVid?'🎥 Video':'📸 Photo'} · ${u.date}</span>
+            <button onclick="deleteUpload('${u.id}','${catName}')" style="background:#c62828;color:white;border:none;border-radius:4px;font-size:9px;padding:2px 5px;cursor:pointer">🗑</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }catch(e){
+    grid.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Error loading files</p>';
+  }
+}
+
+async function loadCustomerPhotos(catName){
+  const key = catName.replace(/\s/g,'_');
+  const el = document.getElementById(`custPhotos_${key}`);
+  if(!el) return;
+  try{
+    const snap = await db.collection('uploads').where('catName','==',catName).orderBy('ts','desc').get();
+    const uploads = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(uploads.length===0){
+      el.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">No photos uploaded yet</p>';
+      return;
+    }
+    el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${uploads.map(u=>{
+        const isVid=u.url.match(/\.(mp4|mov|avi|webm)/i)||u.type==='video';
+        const isRx=u.url.includes('.pdf')||u.type==='rx';
+        let preview='';
+        if(isRx) preview=`<div style="background:var(--warm);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="window.open('${u.url}','_blank')"><span style="font-size:28px">📄</span><span style="font-size:9px;color:var(--muted);margin-top:4px">Tap to view</span></div>`;
+        else if(isVid) preview=`<div style="background:#1a2e1a;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer" onclick="window.open('${u.url}','_blank')"><span style="font-size:28px">🎥</span><span style="font-size:9px;color:var(--mint);margin-top:4px">Tap to play</span></div>`;
+        else preview=`<img src="${u.url}" style="width:100%;aspect-ratio:1;object-fit:cover;cursor:pointer" onclick="window.open('${u.url}','_blank')">`;
+        return`<div style="border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+          ${preview}
+          <div style="background:rgba(26,46,26,.75);color:white;font-size:9px;padding:3px 6px;text-align:center">${isRx?'📄 Prescription':isVid?'🎥 Video':'📸 Photo'} · ${u.date}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }catch(e){
+    el.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Unable to load photos</p>';
+  }
+}
+
+// ============================================================
+// MODAL & UTILS
+// ============================================================
+function closeModal(e){if(!e||e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ============================================================
+// START
+// ============================================================
+window.addEventListener('load',async()=>{
+  await initDB();
+  startListeners();
+  setTimeout(()=>show('loginScreen'),1500);
+});
+</script>
+</body>
+</html>
